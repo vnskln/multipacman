@@ -1,0 +1,33 @@
+# Pliki obiektowe i kompilacji
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.a
+*.lib
+
+# Katalogi budowania
+build/
+cmake-build-*/
+out/
+
+# Pliki CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# VS Code
+.vscode/
+
+# Pliki systemowe
+.DS_Store
+Thumbs.db
+
+# Pliki tymczasowe
+*.tmp
+*.swp
+*~
