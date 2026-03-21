@@ -18,7 +18,9 @@ private:
 
     void spawnDots();
     void movePlayer();
+    void moveGhosts();
     void collectDots();
+    void checkCollisions();
     void checkWin();
 
 public:
