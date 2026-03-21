@@ -3,5 +3,7 @@ project(MultiPacman)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB SOURCES src/*.cpp)
-add_executable(multipacman ${SOURCES})
+add_executable(multipacman
+    src/main.cpp
+    src/map.cpp
+)
