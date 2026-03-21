@@ -5,7 +5,7 @@
 
 class ConsoleRenderer : public Renderer {
 public:
-    void render(Game& game) override;
+    void render(const Game& game) override;
 };
 
 #endif

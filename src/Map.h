@@ -14,10 +14,10 @@ private:
 
 public:
     Map();
-    bool isWall(int x, int y);
-    CellType getCell(int x, int y);
-    int getWidth();
-    int getHeight();
+    bool isWall(int x, int y) const;
+    CellType getCell(int x, int y) const;
+    int getWidth() const;
+    int getHeight() const;
 };
 
 #endif

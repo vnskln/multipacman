@@ -1,10 +1,23 @@
 #include "Player.h"
 
-Player::Player(int x, int y) : Entity(x, y), score(0), alive(true) {
+Player::Player(int x, int y, int playerId, const std::string& name)
+    : Entity(x, y), playerId(playerId), name(name), score(0), state(State::Alive) {
 }
 
 char Player::getSymbol() const {
     return 'P';
+}
+
+int Player::getPlayerId() const {
+    return playerId;
+}
+
+std::string Player::getName() const {
+    return name;
+}
+
+Player::State Player::getState() const {
+    return state;
 }
 
 int Player::getScore() const {
@@ -12,7 +25,7 @@ int Player::getScore() const {
 }
 
 bool Player::isAlive() const {
-    return alive;
+    return state == State::Alive;
 }
 
 void Player::addScore(int points) {
@@ -20,5 +33,9 @@ void Player::addScore(int points) {
 }
 
 void Player::kill() {
-    alive = false;
+    state = State::Dead;
+}
+
+void Player::disconnect() {
+    state = State::Disconnected;
 }

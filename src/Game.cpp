@@ -144,26 +144,26 @@ void Game::checkWin() {
     playerWon = true;
 }
 
-Map& Game::getMap() {
+const Map& Game::getMap() const {
     return map;
 }
 
-Player& Game::getPlayer() {
+const Player& Game::getPlayer() const {
     return player;
 }
 
-std::vector<Ghost>& Game::getGhosts() {
+const std::vector<Ghost>& Game::getGhosts() const {
     return ghosts;
 }
 
-std::vector<Dot>& Game::getDots() {
+const std::vector<Dot>& Game::getDots() const {
     return dots;
 }
 
-bool Game::isOver() {
+bool Game::isOver() const {
     return gameOver;
 }
 
-bool Game::isWon() {
+bool Game::isWon() const {
     return playerWon;
 }

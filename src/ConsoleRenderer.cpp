@@ -2,11 +2,11 @@
 #include "Game.h"
 #include <iostream>
 
-void ConsoleRenderer::render(Game& game) {
-    Map& map = game.getMap();
-    Player& player = game.getPlayer();
-    std::vector<Ghost>& ghosts = game.getGhosts();
-    std::vector<Dot>& dots = game.getDots();
+void ConsoleRenderer::render(const Game& game) {
+    const Map& map = game.getMap();
+    const Player& player = game.getPlayer();
+    const std::vector<Ghost>& ghosts = game.getGhosts();
+    const std::vector<Dot>& dots = game.getDots();
 
     std::cout << "\033[H";
 

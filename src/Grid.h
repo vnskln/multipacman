@@ -19,23 +19,23 @@ public:
         cells.resize(width * height, defaultValue);
     }
     
-    T get (int x, int y) {
+    T get(int x, int y) const {
         return cells[y * width + x];
     }
 
-    void set (int x, int y, T value) {
+    void set(int x, int y, T value) {
         cells[y * width + x] = value;
     }
 
-    int getWidth() {
+    int getWidth() const {
         return width;
     }
 
-    int getHeight() {
+    int getHeight() const {
         return height;
     }
-    
-    T getDefaultValue() {
+
+    T getDefaultValue() const {
         return defaultValue;
     }
 };

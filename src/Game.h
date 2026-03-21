@@ -28,12 +28,12 @@ public:
     void handleInput(Direction dir);
     void update();
 
-    Map& getMap();
-    Player& getPlayer();
-    std::vector<Ghost>& getGhosts();
-    std::vector<Dot>& getDots();
-    bool isOver();
-    bool isWon();
+    const Map& getMap() const;
+    const Player& getPlayer() const;
+    const std::vector<Ghost>& getGhosts() const;
+    const std::vector<Dot>& getDots() const;
+    bool isOver() const;
+    bool isWon() const;
 };
 
 #endif

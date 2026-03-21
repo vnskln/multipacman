@@ -29,18 +29,18 @@ void Map::loadLayout(const std::vector<std::string>& layout) {
     }
 }
 
-bool Map::isWall(int x, int y) {
+bool Map::isWall(int x, int y) const {
     return grid.get(x, y) == CellType::Wall;
 }
 
-CellType Map::getCell(int x, int y) {
+CellType Map::getCell(int x, int y) const {
     return grid.get(x, y);
 }
 
-int Map::getWidth() {
+int Map::getWidth() const {
     return grid.getWidth();
 }
 
-int Map::getHeight() {
+int Map::getHeight() const {
     return grid.getHeight();
 }
