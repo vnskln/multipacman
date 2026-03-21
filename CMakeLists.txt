@@ -10,4 +10,5 @@ add_executable(multipacman
     src/Player.cpp
     src/Ghost.cpp
     src/Dot.cpp
+    src/Game.cpp
 )

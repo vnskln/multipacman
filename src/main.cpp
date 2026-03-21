@@ -1,33 +1,23 @@
 #include <iostream>
-#include "Map.h"
-#include "Player.h"
-#include "Ghost.h"
-#include "Dot.h"
+#include "Game.h"
 
 int main() {
-    Map map;
-    Player player(1, 1);
-    Ghost ghost(7, 5, 0);
-    Dot dot(3, 3);
+    Game game;
 
-    std::cout << player.getSymbol() << " at (" << player.getX() << "," << player.getY() << ")" << std::endl;
-    std::cout << ghost.getSymbol() << " at (" << ghost.getX() << "," << ghost.getY() << ")" << std::endl;
-    std::cout << dot.getSymbol() << " at (" << dot.getX() << "," << dot.getY() << ")" << std::endl;
+    std::cout << "MULTIPACMAN" << std::endl;
+    std::cout << "Dots: " << game.getDots().size() << std::endl;
+    std::cout << "Ghosts: " << game.getGhosts().size() << std::endl;
+    std::cout << "Player at (" << game.getPlayer().getX() << "," << game.getPlayer().getY() << ")" << std::endl;
 
-    std::cout << std::endl;
-    std::cout << "MULTIPACMAN " << map.getWidth() << "x" << map.getHeight() << std::endl;
-    std::cout << std::endl;
+    game.handleInput(Direction::Right);
+    game.update();
+    game.update();
+    game.update();
 
-    for (int y = 0; y < map.getHeight(); y++) {
-        for (int x = 0; x < map.getWidth(); x++) {
-            if (map.isWall(x, y)) {
-                std::cout << "#";
-            } else {
-                std::cout << " ";
-            }
-        }
-        std::cout << std::endl;
-    }
+    std::cout << "After 3 updates:" << std::endl;
+    std::cout << "Player at (" << game.getPlayer().getX() << "," << game.getPlayer().getY() << ")" << std::endl;
+    std::cout << "Score: " << game.getPlayer().getScore() << std::endl;
+    std::cout << "Game over: " << (game.isOver() ? "yes" : "no") << std::endl;
 
     return 0;
 }
