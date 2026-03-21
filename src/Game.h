@@ -10,7 +10,7 @@
 class Game {
 private:
     Map map;
-    Player player;
+    std::vector<Player> players;
     std::vector<Ghost> ghosts;
     std::vector<Dot> dots;
     bool gameOver;
@@ -30,6 +30,7 @@ public:
 
     const Map& getMap() const;
     const Player& getPlayer() const;
+    const std::vector<Player>& getPlayers() const;
     const std::vector<Ghost>& getGhosts() const;
     const std::vector<Dot>& getDots() const;
     bool isOver() const;

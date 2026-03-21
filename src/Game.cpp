@@ -1,7 +1,8 @@
 #include "Game.h"
 #include <cstdlib>
 
-Game::Game() : player(1, 9), gameOver(false), playerWon(false) {
+Game::Game() : gameOver(false), playerWon(false) {
+    players.push_back(Player(1, 9, 0, "Player1"));
     ghosts.push_back(Ghost(6, 5, 0));
     ghosts.push_back(Ghost(7, 5, 1));
     ghosts.push_back(Ghost(8, 5, 2));
@@ -14,7 +15,7 @@ void Game::spawnDots() {
         for (int x = 0; x < map.getWidth(); x++) {
             if (map.isWall(x, y)) continue;
 
-            if (x == player.getX() && y == player.getY()) continue;
+            if (x == players[0].getX() && y == players[0].getY()) continue;
 
             bool isGhostSpawn = false;
             for (int i = 0; i < (int)ghosts.size(); i++) {
@@ -31,7 +32,7 @@ void Game::spawnDots() {
 }
 
 void Game::handleInput(Direction dir) {
-    player.setDirection(dir);
+    players[0].setDirection(dir);
 }
 
 void Game::update() {
@@ -45,10 +46,10 @@ void Game::update() {
 }
 
 void Game::movePlayer() {
-    int newX = player.getX();
-    int newY = player.getY();
+    int newX = players[0].getX();
+    int newY = players[0].getY();
 
-    switch (player.getDirection()) {
+    switch (players[0].getDirection()) {
         case Direction::Up:    newY--; break;
         case Direction::Down:  newY++; break;
         case Direction::Left:  newX--; break;
@@ -59,19 +60,19 @@ void Game::movePlayer() {
     if (newX >= 0 && newX < map.getWidth() &&
         newY >= 0 && newY < map.getHeight() &&
         !map.isWall(newX, newY)) {
-        player.setPosition(newX, newY);
+        players[0].setPosition(newX, newY);
     }
 
-    player.setDirection(Direction::None);
+    players[0].setDirection(Direction::None);
 }
 
 void Game::collectDots() {
     for (int i = 0; i < (int)dots.size(); i++) {
         if (!dots[i].isCollected() &&
-            dots[i].getX() == player.getX() &&
-            dots[i].getY() == player.getY()) {
+            dots[i].getX() == players[0].getX() &&
+            dots[i].getY() == players[0].getY()) {
             dots[i].collect();
-            player.addScore(dots[i].getValue());
+            players[0].addScore(dots[i].getValue());
         }
     }
 }
@@ -81,8 +82,8 @@ void Game::moveGhosts() {
         Direction dir = Direction::None;
 
         if (rand() % 2 == 0) {
-            int dx = player.getX() - ghosts[i].getX();
-            int dy = player.getY() - ghosts[i].getY();
+            int dx = players[0].getX() - ghosts[i].getX();
+            int dy = players[0].getY() - ghosts[i].getY();
 
             if (abs(dx) > abs(dy)) {
                 if (dx > 0) {
@@ -127,9 +128,9 @@ void Game::moveGhosts() {
 
 void Game::checkCollisions() {
     for (int i = 0; i < (int)ghosts.size(); i++) {
-        if (ghosts[i].getX() == player.getX() &&
-            ghosts[i].getY() == player.getY()) {
-            player.kill();
+        if (ghosts[i].getX() == players[0].getX() &&
+            ghosts[i].getY() == players[0].getY()) {
+            players[0].kill();
             gameOver = true;
             return;
         }
@@ -149,7 +150,11 @@ const Map& Game::getMap() const {
 }
 
 const Player& Game::getPlayer() const {
-    return player;
+    return players[0];
+}
+
+const std::vector<Player>& Game::getPlayers() const {
+    return players;
 }
 
 const std::vector<Ghost>& Game::getGhosts() const {
