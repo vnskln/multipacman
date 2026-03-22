@@ -10,6 +10,10 @@ int main() {
     srand(time(nullptr));
 
     Game game;
+    game.addPlayer(0, "Foo");
+    game.addPlayer(1, "Bar");
+    game.start();
+
     ConsoleRenderer renderer;
 
     system("cls");

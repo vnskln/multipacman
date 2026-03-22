@@ -17,7 +17,7 @@ private:
     bool playerWon;
 
     void spawnDots();
-    void movePlayer();
+    void movePlayers();
     void moveGhosts();
     void collectDots();
     void checkCollisions();
@@ -25,6 +25,9 @@ private:
 
 public:
     Game();
+    void addPlayer(int playerId, const std::string& name);
+    void removePlayer(int playerId);
+    void start();
     void handleInput(int playerId, Direction dir);
     void update();
 

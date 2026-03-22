@@ -5,7 +5,7 @@ Player::Player(int x, int y, int playerId, const std::string& name)
 }
 
 char Player::getSymbol() const {
-    return 'P';
+    return 'A' + playerId;
 }
 
 int Player::getPlayerId() const {

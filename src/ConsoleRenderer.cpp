@@ -4,7 +4,7 @@
 
 void ConsoleRenderer::render(const Game& game) {
     const Map& map = game.getMap();
-    const Player& player = game.getPlayer();
+    const std::vector<Player>& players = game.getPlayers();
     const std::vector<Ghost>& ghosts = game.getGhosts();
     const std::vector<Dot>& dots = game.getDots();
 
@@ -14,9 +14,13 @@ void ConsoleRenderer::render(const Game& game) {
         for (int x = 0; x < map.getWidth(); x++) {
             bool drawn = false;
 
-            if (x == player.getX() && y == player.getY()) {
-                std::cout << 'P';
-                drawn = true;
+            for (int p = 0; p < (int)players.size(); p++) {
+                if (players[p].isAlive() &&
+                    x == players[p].getX() && y == players[p].getY()) {
+                    std::cout << players[p].getSymbol();
+                    drawn = true;
+                    break;
+                }
             }
 
             if (!drawn) {
@@ -48,5 +52,10 @@ void ConsoleRenderer::render(const Game& game) {
         std::cout << std::endl;
     }
 
-    std::cout << "Score: " << player.getScore() << std::endl;
+    for (int p = 0; p < (int)players.size(); p++) {
+        std::cout << players[p].getName() << ": " << players[p].getScore();
+        if (!players[p].isAlive()) std::cout << " [DEAD]";
+        std::cout << "  ";
+    }
+    std::cout << std::endl;
 }
