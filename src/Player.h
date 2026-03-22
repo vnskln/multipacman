@@ -27,6 +27,8 @@ public:
     void addScore(int points);
     void kill();
     void disconnect();
+    void setScore(int s);
+    void setState(State s);
 };
 
 #endif

@@ -235,6 +235,23 @@ const std::vector<Dot>& Game::getDots() const {
     return dots;
 }
 
+std::vector<Player>& Game::getPlayers() {
+    return players;
+}
+
+std::vector<Ghost>& Game::getGhosts() {
+    return ghosts;
+}
+
+std::vector<Dot>& Game::getDots() {
+    return dots;
+}
+
+void Game::setOver(bool over, bool won) {
+    gameOver = over;
+    playerWon = won;
+}
+
 bool Game::isOver() const {
     return gameOver;
 }

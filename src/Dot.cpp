@@ -18,3 +18,7 @@ int Dot::getValue() const {
 void Dot::collect() {
     collected = true;
 }
+
+void Dot::setCollected(bool c) {
+    collected = c;
+}

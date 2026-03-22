@@ -39,3 +39,11 @@ void Player::kill() {
 void Player::disconnect() {
     state = State::Disconnected;
 }
+
+void Player::setScore(int s) {
+    score = s;
+}
+
+void Player::setState(State s) {
+    state = s;
+}

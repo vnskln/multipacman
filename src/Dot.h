@@ -16,6 +16,7 @@ public:
     bool isCollected() const;
     int getValue() const;
     void collect();
+    void setCollected(bool c);
 };
 
 #endif

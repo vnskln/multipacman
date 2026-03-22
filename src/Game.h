@@ -36,6 +36,12 @@ public:
     const std::vector<Player>& getPlayers() const;
     const std::vector<Ghost>& getGhosts() const;
     const std::vector<Dot>& getDots() const;
+
+    std::vector<Player>& getPlayers();
+    std::vector<Ghost>& getGhosts();
+    std::vector<Dot>& getDots();
+    void setOver(bool over, bool won);
+
     bool isOver() const;
     bool isWon() const;
 };
