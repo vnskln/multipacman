@@ -25,7 +25,7 @@ private:
 
 public:
     Game();
-    void handleInput(Direction dir);
+    void handleInput(int playerId, Direction dir);
     void update();
 
     const Map& getMap() const;

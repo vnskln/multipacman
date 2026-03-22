@@ -32,19 +32,19 @@ int main() {
             switch (key) {
                 case 'w':
                 case 'W':
-                    game.handleInput(Direction::Up);
+                    game.handleInput(0, Direction::Up);
                     break;
                 case 's':
                 case 'S':
-                    game.handleInput(Direction::Down);
+                    game.handleInput(0, Direction::Down);
                     break;
                 case 'a':
                 case 'A':
-                    game.handleInput(Direction::Left);
+                    game.handleInput(0, Direction::Left);
                     break;
                 case 'd':
                 case 'D':
-                    game.handleInput(Direction::Right);
+                    game.handleInput(0, Direction::Right);
                     break;
                 case 27:
                     running = false;

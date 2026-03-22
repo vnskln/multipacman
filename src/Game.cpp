@@ -31,8 +31,13 @@ void Game::spawnDots() {
     }
 }
 
-void Game::handleInput(Direction dir) {
-    players[0].setDirection(dir);
+void Game::handleInput(int playerId, Direction dir) {
+    for (int i = 0; i < (int)players.size(); i++) {
+        if (players[i].getPlayerId() == playerId) {
+            players[i].setDirection(dir);
+            return;
+        }
+    }
 }
 
 void Game::update() {
