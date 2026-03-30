@@ -24,12 +24,15 @@ add_executable(multipacman
 
 add_executable(multipacman_server
     src/main_server.cpp
+    src/GameServer.cpp
+    src/ClientConnection.cpp
     ${GAME_SOURCES}
 )
 target_link_libraries(multipacman_server PRIVATE SFML::Network SFML::System ws2_32)
 
 add_executable(multipacman_client
     src/main_client.cpp
+    src/GameClient.cpp
     ${GAME_SOURCES}
     src/ConsoleRenderer.cpp
 )
