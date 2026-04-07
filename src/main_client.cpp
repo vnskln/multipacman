@@ -2,11 +2,16 @@
 #include <string>
 #include <conio.h>
 #include <windows.h>
+#include <SFML/Graphics.hpp>
 #include "GameClient.h"
 #include "ConsoleRenderer.h"
 #include "Protocol.h"
+#include "MainMenuScreen.h"
+#include "ConnectScreen.h"
+#include "LobbyScreen.h"
+#include "GameScreen.h"
 
-int main() {
+int runConsole() {
     std::string serverIp;
     std::cout << "Server IP: ";
     std::cin >> serverIp;
@@ -99,4 +104,149 @@ int main() {
     _getch();
     client.disconnect();
     return 0;
+}
+
+int runGui() {
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "MULTIPACMAN",
+                            sf::Style::Titlebar | sf::Style::Close);
+    window.setFramerateLimit(60);
+
+    sf::Font font;
+    if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) {
+        std::cerr << "Cannot load font" << std::endl;
+        return 1;
+    }
+
+    GameClient client;
+
+    enum class AppState { Menu, Connect, Lobby, Game };
+    AppState state = AppState::Menu;
+
+    MainMenuScreen menuScreen(font);
+    ConnectScreen connectScreen(font);
+    LobbyScreen lobbyScreen(font, client);
+    GameScreen gameScreen(font, window, client);
+
+    while (window.isOpen()) {
+        while (const auto event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                window.close();
+                continue;
+            }
+
+            switch (state) {
+                case AppState::Menu:
+                    menuScreen.handleEvent(*event);
+                    break;
+                case AppState::Connect:
+                    connectScreen.handleEvent(*event);
+                    break;
+                case AppState::Lobby:
+                    lobbyScreen.handleEvent(*event);
+                    break;
+                case AppState::Game:
+                    gameScreen.handleEvent(*event);
+                    break;
+            }
+        }
+
+        switch (state) {
+            case AppState::Menu:
+                menuScreen.update();
+                if (menuScreen.wantsExit()) {
+                    window.close();
+                } else if (menuScreen.wantsConnect()) {
+                    state = AppState::Connect;
+                    menuScreen.reset();
+                    connectScreen.reset();
+                }
+                break;
+
+            case AppState::Connect:
+                connectScreen.update();
+                if (connectScreen.wantsBack()) {
+                    state = AppState::Menu;
+                    connectScreen.reset();
+                } else if (connectScreen.wantsConnect()) {
+                    std::string name = connectScreen.getName();
+                    connectScreen.clearConnect();
+
+                    if (name.empty()) {
+                        connectScreen.setError("Name cannot be empty");
+                    } else if (client.connect(connectScreen.getIp(),
+                                              connectScreen.getPort(),
+                                              name)) {
+                        state = AppState::Lobby;
+                        lobbyScreen.reset();
+                    } else {
+                        connectScreen.setError("Could not connect to server");
+                    }
+                }
+                break;
+
+            case AppState::Lobby:
+                client.receiveMessages();
+                lobbyScreen.update();
+
+                if (lobbyScreen.wantsDisconnect()) {
+                    client.disconnect();
+                    state = AppState::Menu;
+                    menuScreen.reset();
+                } else if (!client.isConnected()) {
+                    state = AppState::Menu;
+                    menuScreen.reset();
+                } else if (client.isGameStarted()) {
+                    state = AppState::Game;
+                    gameScreen.reset();
+                }
+                break;
+
+            case AppState::Game:
+                client.receiveMessages();
+                gameScreen.update();
+
+                if (gameScreen.wantsMenu()) {
+                    client.disconnect();
+                    state = AppState::Menu;
+                    menuScreen.reset();
+                } else if (!client.isConnected() && !client.isGameOver()) {
+                    state = AppState::Menu;
+                    menuScreen.reset();
+                }
+                break;
+        }
+
+        window.clear();
+        switch (state) {
+            case AppState::Menu:
+                menuScreen.draw(window);
+                break;
+            case AppState::Connect:
+                connectScreen.draw(window);
+                break;
+            case AppState::Lobby:
+                lobbyScreen.draw(window);
+                break;
+            case AppState::Game:
+                gameScreen.draw(window);
+                break;
+        }
+        window.display();
+    }
+
+    if (client.isConnected()) {
+        client.disconnect();
+    }
+
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
+    bool useGui = true;
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--console") useGui = false;
+    }
+
+    if (useGui) return runGui();
+    return runConsole();
 }

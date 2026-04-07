@@ -42,7 +42,18 @@ void GameServer::run() {
             if (game.isOver()) {
                 broadcastGameOver();
                 std::cout << "Game over!" << std::endl;
-                break;
+
+                for (int i = 0; i < (int)clients.size(); i++) {
+                    selector.remove(clients[i]->getSocket());
+                    clients[i]->disconnect();
+                }
+                clients.clear();
+
+                game = Game();
+                inGame = false;
+                nextPlayerId = 0;
+
+                std::cout << "Waiting for players..." << std::endl;
             }
         }
     }

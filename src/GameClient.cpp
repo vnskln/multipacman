@@ -7,6 +7,14 @@ GameClient::GameClient()
 }
 
 bool GameClient::connect(const std::string& ip, unsigned short port, const std::string& name) {
+    game = Game();
+    myPlayerId = -1;
+    inLobby = false;
+    gameStarted = false;
+    gameOver = false;
+    lobbyPlayers.clear();
+    selector.clear();
+
     auto address = sf::IpAddress::resolve(ip);
     if (!address) {
         std::cerr << "Invalid IP" << std::endl;
