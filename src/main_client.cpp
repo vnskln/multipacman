@@ -10,6 +10,7 @@
 #include "ConnectScreen.h"
 #include "LobbyScreen.h"
 #include "GameScreen.h"
+#include "Constants.h"
 
 int runConsole() {
     std::string serverIp;
@@ -107,7 +108,7 @@ int runConsole() {
 }
 
 int runGui() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "MULTIPACMAN",
+    sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), "MULTIPACMAN",
                             sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
 

@@ -4,6 +4,7 @@
 #include "Screen.h"
 #include <string>
 
+/// Ekran laczenia z serwerem - pola na IP, port i nazwe gracza.
 class ConnectScreen : public Screen {
 private:
     sf::Font& font;

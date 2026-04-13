@@ -7,11 +7,16 @@
 #include "Game.h"
 #include "Protocol.h"
 
+/// Dane gracza widoczne w lobby.
 struct LobbyPlayer {
     int id;
     std::string name;
 };
 
+/**
+ * Klient gry. Laczy sie z serwerem, wysyla input
+ * i odbiera stan gry do wyswietlenia.
+ */
 class GameClient {
 private:
     sf::TcpSocket socket;
@@ -35,9 +40,12 @@ private:
 public:
     GameClient();
 
+    /// Laczy sie z serwerem i wysyla JOIN. Zwraca false jesli nie udalo sie polaczyc.
     bool connect(const std::string& ip, unsigned short port, const std::string& name);
+    /// Wysyla kierunek ruchu do serwera.
     void sendInput(std::int32_t dir);
     void sendStartGame();
+    /// Odbiera i przetwarza wiadomosci z serwera. Nalezy wolac co klatke.
     void receiveMessages();
     void disconnect();
 

@@ -8,6 +8,10 @@
 #include "ClientConnection.h"
 #include "Protocol.h"
 
+/**
+ * Serwer gry. Obsluguje lobby i rozgrywke dla 1-4 graczy.
+ * Dziala w petli: odbiera input, aktualizuje stan, rozsyla do klientow.
+ */
 class GameServer {
 private:
     sf::TcpListener listener;
@@ -16,6 +20,7 @@ private:
     Game game;
     bool inGame;
     int nextPlayerId;
+    sf::Clock gameClock;
 
     void acceptNewClient();
     void handleLobbyMessage(ClientConnection& client);
@@ -29,7 +34,9 @@ private:
     void broadcast(sf::Packet& packet);
 
 public:
+    /// @param port port TCP na ktorym serwer nasluchuje
     GameServer(unsigned short port);
+    /// Glowna petla serwera (lobby + gra). Nie wraca.
     void run();
 };
 

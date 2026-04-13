@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 
+/// Typ komorki na mapie.
 enum class CellType { Wall, Empty };
 
+/// Plansza gry zaladowana z predefiniowanego layoutu.
 class Map {
 private:
     Grid<CellType> grid;
@@ -15,7 +17,6 @@ private:
 public:
     Map();
     bool isWall(int x, int y) const;
-    CellType getCell(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
 };

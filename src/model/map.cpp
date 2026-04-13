@@ -1,20 +1,24 @@
 #include "Map.h"
 
 static const std::vector<std::string> DEFAULT_LAYOUT = {
-    "###############",
-    "#      #      #",
-    "# #### # #### #",
-    "#             #",
-    "# ## ##### ## #",
-    "#      #      #",
-    "# ## ##### ## #",
-    "#             #",
-    "# #### # #### #",
-    "#      #      #",
-    "###############",
+    "#####################",
+    "#         #         #",
+    "# ### ### # ### ### #",
+    "#                   #",
+    "# # ##### # ##### # #",
+    "#   #     #     #   #",
+    "### # ### # ### # ###",
+    "#                   #",
+    "### # ### # ### # ###",
+    "#   #     #     #   #",
+    "# # ##### # ##### # #",
+    "#                   #",
+    "# ### ### # ### ### #",
+    "#         #         #",
+    "#####################",
 };
 
-Map::Map() : grid(15, 11, CellType::Empty) {
+Map::Map() : grid(21, 15, CellType::Empty) {
     loadLayout(DEFAULT_LAYOUT);
 }
 
@@ -31,10 +35,6 @@ void Map::loadLayout(const std::vector<std::string>& layout) {
 
 bool Map::isWall(int x, int y) const {
     return grid.get(x, y) == CellType::Wall;
-}
-
-CellType Map::getCell(int x, int y) const {
-    return grid.get(x, y);
 }
 
 int Map::getWidth() const {

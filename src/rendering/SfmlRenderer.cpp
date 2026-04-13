@@ -1,8 +1,8 @@
 #include "SfmlRenderer.h"
+#include "Constants.h"
 
-static const int TILE = 32;
-static const int MAP_X = 20;
-static const int MAP_Y = 20;
+static const int MAP_X = MAP_MARGIN;
+static const int MAP_Y = MAP_MARGIN;
 
 static sf::Color getPlayerColor(int id) {
     if (id == 0) return sf::Color::Yellow;

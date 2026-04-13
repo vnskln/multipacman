@@ -3,6 +3,7 @@
 
 #include "Entity.h"
 
+/// Duch scigajacy graczy. Porusza sie co drugi tick.
 class Ghost : public Entity {
 private:
     int id;

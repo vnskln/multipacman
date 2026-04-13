@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include <SFML/Graphics.hpp>
 
+/// Renderer rysujacy gre w oknie SFML (ksztalty geometryczne).
 class SfmlRenderer : public Renderer {
 private:
     sf::RenderWindow& window;

@@ -1,8 +1,13 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+/// Kierunek ruchu na planszy.
 enum class Direction { Up, Down, Left, Right, None };
 
+/**
+ * Klasa bazowa dla obiektow na planszy.
+ * Kazdy obiekt ma pozycje (x, y) i kierunek ruchu.
+ */
 class Entity {
 protected:
     int x;
@@ -13,6 +18,7 @@ public:
     Entity(int x, int y);
     virtual ~Entity();
 
+    /// Zwraca znak reprezentujacy obiekt w trybie konsolowym.
     virtual char getSymbol() const = 0;
 
     int getX() const;

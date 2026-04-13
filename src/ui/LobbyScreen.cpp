@@ -1,4 +1,5 @@
 #include "LobbyScreen.h"
+#include "Constants.h"
 
 static sf::Color getPlayerColor(int id) {
     if (id == 0) return sf::Color::Yellow;
@@ -18,11 +19,11 @@ void LobbyScreen::handleEvent(const sf::Event& event) {
         float mx = (float)click->position.x;
         float my = (float)click->position.y;
 
-        if (client.isHost() && mx >= 300 && mx <= 500 && my >= 400 && my <= 450) {
+        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 400 && my <= 450) {
             client.sendStartGame();
         }
 
-        if (mx >= 300 && mx <= 500 && my >= 470 && my <= 520) {
+        if (mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 470 && my <= 520) {
             disconnectClicked = true;
         }
     }
@@ -34,7 +35,7 @@ void LobbyScreen::update() {
 void LobbyScreen::draw(sf::RenderWindow& window) {
     sf::Text title(font, "Lobby", 36);
     sf::FloatRect titleBounds = title.getGlobalBounds();
-    title.setPosition({400.f - titleBounds.size.x / 2.f, 60.f});
+    title.setPosition({CENTER_X - titleBounds.size.x / 2.f, 60.f});
     title.setFillColor(sf::Color::White);
     window.draw(title);
 
@@ -44,43 +45,43 @@ void LobbyScreen::draw(sf::RenderWindow& window) {
         if (players[i].id == 0) info += " (host)";
 
         sf::RectangleShape colorBox({20.f, 20.f});
-        colorBox.setPosition({280.f, 180.f + i * 40.f});
+        colorBox.setPosition({CENTER_X - 120.f, 180.f + i * 40.f});
         colorBox.setFillColor(getPlayerColor(players[i].id));
         window.draw(colorBox);
 
         sf::Text playerText(font, info, 22);
-        playerText.setPosition({310.f, 178.f + i * 40.f});
+        playerText.setPosition({CENTER_X - 90.f, 178.f + i * 40.f});
         playerText.setFillColor(sf::Color::White);
         window.draw(playerText);
     }
 
     if (client.isHost()) {
         sf::RectangleShape startBtn({200.f, 50.f});
-        startBtn.setPosition({300.f, 400.f});
+        startBtn.setPosition({CENTER_X - 100.f, 400.f});
         startBtn.setFillColor(sf::Color(0, 150, 0));
         window.draw(startBtn);
 
         sf::Text startText(font, "Start Game", 22);
         sf::FloatRect stBounds = startText.getGlobalBounds();
-        startText.setPosition({400.f - stBounds.size.x / 2.f, 412.f});
+        startText.setPosition({CENTER_X - stBounds.size.x / 2.f, 412.f});
         startText.setFillColor(sf::Color::White);
         window.draw(startText);
     } else {
         sf::Text waitText(font, "Waiting for host...", 20);
         sf::FloatRect wtBounds = waitText.getGlobalBounds();
-        waitText.setPosition({400.f - wtBounds.size.x / 2.f, 412.f});
+        waitText.setPosition({CENTER_X - wtBounds.size.x / 2.f, 412.f});
         waitText.setFillColor(sf::Color(150, 150, 150));
         window.draw(waitText);
     }
 
     sf::RectangleShape dcBtn({200.f, 50.f});
-    dcBtn.setPosition({300.f, 470.f});
+    dcBtn.setPosition({CENTER_X - 100.f, 470.f});
     dcBtn.setFillColor(sf::Color(150, 0, 0));
     window.draw(dcBtn);
 
     sf::Text dcText(font, "Disconnect", 22);
     sf::FloatRect dcBounds = dcText.getGlobalBounds();
-    dcText.setPosition({400.f - dcBounds.size.x / 2.f, 482.f});
+    dcText.setPosition({CENTER_X - dcBounds.size.x / 2.f, 482.f});
     dcText.setFillColor(sf::Color::White);
     window.draw(dcText);
 }

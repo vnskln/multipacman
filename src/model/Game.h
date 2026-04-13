@@ -7,6 +7,10 @@
 #include "Dot.h"
 #include <vector>
 
+/**
+ * Glowna logika gry - przechowuje mape, graczy, duchy i kropki.
+ * Serwer wywoluje update() co tick, klient tylko odczytuje stan.
+ */
 class Game {
 private:
     Map map;
@@ -15,6 +19,7 @@ private:
     std::vector<Dot> dots;
     bool gameOver;
     bool playerWon;
+    int tickCount;
 
     void spawnDots();
     void movePlayers();
@@ -27,12 +32,14 @@ public:
     Game();
     void addPlayer(int playerId, const std::string& name);
     void removePlayer(int playerId);
+    /// Rozpoczyna gre - tworzy kropki na mapie.
     void start();
+    /// Ustawia kierunek ruchu gracza o danym id.
     void handleInput(int playerId, Direction dir);
+    /// Jeden tick gry: ruch, zbieranie, kolizje, warunek wygranej.
     void update();
 
     const Map& getMap() const;
-    const Player& getPlayer() const;
     const std::vector<Player>& getPlayers() const;
     const std::vector<Ghost>& getGhosts() const;
     const std::vector<Dot>& getDots() const;

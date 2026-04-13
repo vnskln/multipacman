@@ -3,19 +3,22 @@
 
 #include <vector>
 
+/**
+ * Dwuwymiarowa siatka przechowujaca elementy typu T.
+ * Wewnetrznie uzywa jednowymiarowego wektora (y * width + x).
+ * @tparam T typ przechowywanych elementow (np. CellType)
+ */
 template <typename T>
 class Grid {
 private:
     int width;
     int height;
-    T defaultValue;
     std::vector<T> cells;
 
 public:
     Grid(int width, int height, T defaultValue) {
         this->width = width;
         this->height = height;
-        this->defaultValue = defaultValue;
         cells.resize(width * height, defaultValue);
     }
     
@@ -33,10 +36,6 @@ public:
 
     int getHeight() const {
         return height;
-    }
-
-    T getDefaultValue() const {
-        return defaultValue;
     }
 };
 

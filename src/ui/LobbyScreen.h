@@ -4,6 +4,7 @@
 #include "Screen.h"
 #include "GameClient.h"
 
+/// Ekran lobby - lista graczy, przycisk Start (dla hosta) i Disconnect.
 class LobbyScreen : public Screen {
 private:
     sf::Font& font;

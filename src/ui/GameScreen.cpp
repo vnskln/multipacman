@@ -1,5 +1,6 @@
 #include "GameScreen.h"
 #include "Protocol.h"
+#include "Constants.h"
 #include <string>
 #include <vector>
 
@@ -35,7 +36,7 @@ void GameScreen::handleEvent(const sf::Event& event) {
         if (click) {
             float mx = (float)click->position.x;
             float my = (float)click->position.y;
-            if (mx >= 300 && mx <= 500 && my >= 450 && my <= 500) {
+            if (mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 450 && my <= 500) {
                 backToMenu = true;
             }
         }
@@ -65,19 +66,19 @@ void GameScreen::draw(sf::RenderWindow& window) {
     if (amDead && !client.isGameOver()) {
         sf::Text diedText(font, "You died!", 36);
         sf::FloatRect bounds = diedText.getGlobalBounds();
-        diedText.setPosition({400.f - bounds.size.x / 2.f, 420.f});
+        diedText.setPosition({CENTER_X - bounds.size.x / 2.f, 420.f});
         diedText.setFillColor(sf::Color::Red);
         window.draw(diedText);
     }
 
     if (client.isGameOver()) {
-        sf::RectangleShape overlay({800.f, 600.f});
+        sf::RectangleShape overlay({(float)WINDOW_WIDTH, (float)WINDOW_HEIGHT});
         overlay.setFillColor(sf::Color(0, 0, 0, 150));
         window.draw(overlay);
 
         sf::Text gameOverText(font, "GAME OVER", 48);
         sf::FloatRect goBounds = gameOverText.getGlobalBounds();
-        gameOverText.setPosition({400.f - goBounds.size.x / 2.f, 150.f});
+        gameOverText.setPosition({CENTER_X - goBounds.size.x / 2.f, 150.f});
         gameOverText.setFillColor(sf::Color::White);
         window.draw(gameOverText);
 
@@ -100,19 +101,19 @@ void GameScreen::draw(sf::RenderWindow& window) {
                              + ": " + std::to_string(sorted[i]->getScore()) + " pts";
             sf::Text rankText(font, info, 22);
             sf::FloatRect rBounds = rankText.getGlobalBounds();
-            rankText.setPosition({400.f - rBounds.size.x / 2.f, 250.f + i * 35.f});
+            rankText.setPosition({CENTER_X - rBounds.size.x / 2.f, 250.f + i * 35.f});
             rankText.setFillColor(sf::Color::White);
             window.draw(rankText);
         }
 
         sf::RectangleShape menuBtn({200.f, 50.f});
-        menuBtn.setPosition({300.f, 450.f});
+        menuBtn.setPosition({CENTER_X - 100.f, 450.f});
         menuBtn.setFillColor(sf::Color(0, 100, 200));
         window.draw(menuBtn);
 
         sf::Text menuText(font, "Back to Menu", 20);
         sf::FloatRect mtBounds = menuText.getGlobalBounds();
-        menuText.setPosition({400.f - mtBounds.size.x / 2.f, 462.f});
+        menuText.setPosition({CENTER_X - mtBounds.size.x / 2.f, 462.f});
         menuText.setFillColor(sf::Color::White);
         window.draw(menuText);
     }

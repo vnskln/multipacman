@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
+/// Klasa bazowa dla ekranow GUI (menu, lobby, gra itp.).
 class Screen {
 public:
     Screen() {}

@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 
+/// Polaczenie z jednym klientem po stronie serwera.
 class ClientConnection {
 private:
     std::unique_ptr<sf::TcpSocket> socket;
@@ -24,6 +25,7 @@ public:
     void setName(const std::string& n);
     void disconnect();
 
+    /// Wysyla pakiet do tego klienta. Zwraca false jesli sie nie udalo.
     bool send(sf::Packet& packet);
 };
 

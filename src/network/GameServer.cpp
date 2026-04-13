@@ -28,7 +28,7 @@ void GameServer::run() {
         }
 
         if (inGame) {
-            if (selector.wait(sf::milliseconds(200))) {
+            if (selector.wait(sf::milliseconds(10))) {
                 for (int i = 0; i < (int)clients.size(); i++) {
                     if (clients[i]->isConnected() && selector.isReady(clients[i]->getSocket())) {
                         handleGameMessage(*clients[i]);
@@ -36,8 +36,11 @@ void GameServer::run() {
                 }
             }
 
-            game.update();
-            broadcastGameState();
+            if (gameClock.getElapsedTime() >= sf::milliseconds(100)) {
+                gameClock.restart();
+                game.update();
+                broadcastGameState();
+            }
 
             if (game.isOver()) {
                 broadcastGameOver();
@@ -119,6 +122,7 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
         if (client.getPlayerId() == 0) {
             game.start();
             inGame = true;
+            gameClock.restart();
 
             sf::Packet started;
             started << MSG_GAME_STARTED;

@@ -3,6 +3,7 @@
 
 #include "Screen.h"
 
+/// Ekran menu glownego z przyciskami Connect i Exit.
 class MainMenuScreen : public Screen {
 private:
     sf::Font& font;

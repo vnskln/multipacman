@@ -4,8 +4,10 @@
 #include "Entity.h"
 #include <string>
 
+/// Gracz sterowany przez czlowieka przez siec.
 class Player : public Entity {
 public:
+    /// Stan gracza w rozgrywce.
     enum class State { Alive, Dead, Disconnected };
 
 private:
@@ -25,7 +27,9 @@ public:
     int getScore() const;
     bool isAlive() const;
     void addScore(int points);
+    /// Zabija gracza (zmiana stanu na Dead).
     void kill();
+    /// Oznacza gracza jako rozlaczonego.
     void disconnect();
     void setScore(int s);
     void setState(State s);

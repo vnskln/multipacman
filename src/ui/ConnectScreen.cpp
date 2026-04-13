@@ -1,4 +1,5 @@
 #include "ConnectScreen.h"
+#include "Constants.h"
 #include <cstdlib>
 
 ConnectScreen::ConnectScreen(sf::Font& font)
@@ -12,16 +13,16 @@ void ConnectScreen::handleEvent(const sf::Event& event) {
         float mx = (float)click->position.x;
         float my = (float)click->position.y;
 
-        if (mx >= 350 && mx <= 600) {
+        if (mx >= CENTER_X - 50 && mx <= CENTER_X + 200) {
             if (my >= 200 && my <= 235) activeField = 0;
             if (my >= 260 && my <= 295) activeField = 1;
             if (my >= 320 && my <= 355) activeField = 2;
         }
 
-        if (mx >= 250 && mx <= 390 && my >= 420 && my <= 465) {
+        if (mx >= CENTER_X - 150 && mx <= CENTER_X - 10 && my >= 420 && my <= 465) {
             connectClicked = true;
         }
-        if (mx >= 420 && mx <= 560 && my >= 420 && my <= 465) {
+        if (mx >= CENTER_X + 20 && mx <= CENTER_X + 160 && my >= 420 && my <= 465) {
             backClicked = true;
         }
     }
@@ -58,7 +59,7 @@ void ConnectScreen::update() {
 void ConnectScreen::draw(sf::RenderWindow& window) {
     sf::Text title(font, "Connect to Server", 32);
     sf::FloatRect titleBounds = title.getGlobalBounds();
-    title.setPosition({400.f - titleBounds.size.x / 2.f, 80.f});
+    title.setPosition({CENTER_X - titleBounds.size.x / 2.f, 80.f});
     title.setFillColor(sf::Color::White);
     window.draw(title);
 
@@ -68,12 +69,12 @@ void ConnectScreen::draw(sf::RenderWindow& window) {
 
     for (int i = 0; i < 3; i++) {
         sf::Text label(font, labels[i], 20);
-        label.setPosition({180.f, fieldY[i] + 5.f});
+        label.setPosition({CENTER_X - 220.f, fieldY[i] + 5.f});
         label.setFillColor(sf::Color::White);
         window.draw(label);
 
         sf::RectangleShape field({250.f, 35.f});
-        field.setPosition({350.f, fieldY[i]});
+        field.setPosition({CENTER_X - 50.f, fieldY[i]});
         field.setFillColor(sf::Color(30, 30, 30));
         if (i == activeField) {
             field.setOutlineColor(sf::Color::Yellow);
@@ -87,37 +88,37 @@ void ConnectScreen::draw(sf::RenderWindow& window) {
         std::string display = *fields[i];
         if (i == activeField) display += "|";
         sf::Text fieldText(font, display, 18);
-        fieldText.setPosition({355.f, fieldY[i] + 7.f});
+        fieldText.setPosition({CENTER_X - 45.f, fieldY[i] + 7.f});
         fieldText.setFillColor(sf::Color::White);
         window.draw(fieldText);
     }
 
     sf::RectangleShape connectBtn({140.f, 45.f});
-    connectBtn.setPosition({250.f, 420.f});
+    connectBtn.setPosition({CENTER_X - 150.f, 420.f});
     connectBtn.setFillColor(sf::Color(0, 100, 200));
     window.draw(connectBtn);
 
     sf::Text connectText(font, "Connect", 20);
     sf::FloatRect ctBounds = connectText.getGlobalBounds();
-    connectText.setPosition({320.f - ctBounds.size.x / 2.f, 430.f});
+    connectText.setPosition({CENTER_X - 80.f - ctBounds.size.x / 2.f, 430.f});
     connectText.setFillColor(sf::Color::White);
     window.draw(connectText);
 
     sf::RectangleShape backBtn({140.f, 45.f});
-    backBtn.setPosition({420.f, 420.f});
+    backBtn.setPosition({CENTER_X + 20.f, 420.f});
     backBtn.setFillColor(sf::Color(100, 100, 100));
     window.draw(backBtn);
 
     sf::Text backText(font, "Back", 20);
     sf::FloatRect btBounds = backText.getGlobalBounds();
-    backText.setPosition({490.f - btBounds.size.x / 2.f, 430.f});
+    backText.setPosition({CENTER_X + 90.f - btBounds.size.x / 2.f, 430.f});
     backText.setFillColor(sf::Color::White);
     window.draw(backText);
 
     if (!errorMessage.empty()) {
         sf::Text error(font, errorMessage, 18);
         sf::FloatRect errorBounds = error.getGlobalBounds();
-        error.setPosition({400.f - errorBounds.size.x / 2.f, 490.f});
+        error.setPosition({CENTER_X - errorBounds.size.x / 2.f, 490.f});
         error.setFillColor(sf::Color::Red);
         window.draw(error);
     }

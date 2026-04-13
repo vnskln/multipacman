@@ -52,7 +52,7 @@ void GameClient::sendStartGame() {
 void GameClient::receiveMessages() {
     if (!connected) return;
 
-    if (!selector.wait(sf::milliseconds(50))) return;
+    if (!selector.wait(sf::milliseconds(1))) return;
 
     if (!selector.isReady(socket)) return;
 

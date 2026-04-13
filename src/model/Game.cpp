@@ -1,19 +1,19 @@
 #include "Game.h"
 #include <cstdlib>
 
-Game::Game() : gameOver(false), playerWon(false) {
-    ghosts.push_back(Ghost(6, 5, 0));
-    ghosts.push_back(Ghost(7, 5, 1));
-    ghosts.push_back(Ghost(8, 5, 2));
-    ghosts.push_back(Ghost(9, 5, 3));
+Game::Game() : gameOver(false), playerWon(false), tickCount(0) {
+    ghosts.push_back(Ghost(8, 7, 0));
+    ghosts.push_back(Ghost(9, 7, 1));
+    ghosts.push_back(Ghost(11, 7, 2));
+    ghosts.push_back(Ghost(12, 7, 3));
 }
 
 void Game::addPlayer(int playerId, const std::string& name) {
     int startX = 1;
     int startY = 1;
-    if (playerId == 1) { startX = 13; startY = 1; }
-    if (playerId == 2) { startX = 1;  startY = 9; }
-    if (playerId == 3) { startX = 13; startY = 9; }
+    if (playerId == 1) { startX = 19; startY = 1; }
+    if (playerId == 2) { startX = 1;  startY = 13; }
+    if (playerId == 3) { startX = 19; startY = 13; }
     players.push_back(Player(startX, startY, playerId, name));
 }
 
@@ -70,9 +70,15 @@ void Game::handleInput(int playerId, Direction dir) {
 void Game::update() {
     if (gameOver) return;
 
+    tickCount++;
+
     movePlayers();
     collectDots();
-    moveGhosts();
+
+    if (tickCount % 2 == 0) {
+        moveGhosts();
+    }
+
     checkCollisions();
     checkWin();
 }
@@ -89,7 +95,7 @@ void Game::movePlayers() {
             case Direction::Down:  newY++; break;
             case Direction::Left:  newX--; break;
             case Direction::Right: newX++; break;
-            case Direction::None:  continue;
+            default: continue;
         }
 
         if (newX >= 0 && newX < map.getWidth() &&
@@ -217,10 +223,6 @@ void Game::checkWin() {
 
 const Map& Game::getMap() const {
     return map;
-}
-
-const Player& Game::getPlayer() const {
-    return players[0];
 }
 
 const std::vector<Player>& Game::getPlayers() const {

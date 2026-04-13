@@ -5,6 +5,7 @@
 #include "SfmlRenderer.h"
 #include "GameClient.h"
 
+/// Ekran rozgrywki - rysuje plansze, obsluguje input i ekran game over.
 class GameScreen : public Screen {
 private:
     sf::Font& font;
