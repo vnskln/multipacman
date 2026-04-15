@@ -22,6 +22,10 @@ set(GAME_SOURCES
     src/model/Ghost.cpp
     src/model/Dot.cpp
     src/model/Game.cpp
+    src/model/ChaserStrategy.cpp
+    src/model/AmbusherStrategy.cpp
+    src/model/PatrolStrategy.cpp
+    src/model/RandomStrategy.cpp
 )
 
 add_executable(multipacman_server

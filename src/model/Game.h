@@ -5,7 +5,9 @@
 #include "Player.h"
 #include "Ghost.h"
 #include "Dot.h"
+#include "GhostStrategy.h"
 #include <vector>
+#include <memory>
 
 /**
  * Glowna logika gry - przechowuje mape, graczy, duchy i kropki.
@@ -17,6 +19,7 @@ private:
     std::vector<Player> players;
     std::vector<Ghost> ghosts;
     std::vector<Dot> dots;
+    std::vector<std::unique_ptr<GhostStrategy>> strategies;
     bool gameOver;
     bool playerWon;
     int tickCount;

@@ -1,11 +1,20 @@
 #include "Game.h"
+#include "ChaserStrategy.h"
+#include "AmbusherStrategy.h"
+#include "PatrolStrategy.h"
+#include "RandomStrategy.h"
 #include <cstdlib>
 
 Game::Game() : gameOver(false), playerWon(false), tickCount(0) {
-    ghosts.push_back(Ghost(8, 7, 0));
-    ghosts.push_back(Ghost(9, 7, 1));
-    ghosts.push_back(Ghost(11, 7, 2));
-    ghosts.push_back(Ghost(12, 7, 3));
+    strategies.push_back(std::make_unique<ChaserStrategy>());
+    strategies.push_back(std::make_unique<AmbusherStrategy>());
+    strategies.push_back(std::make_unique<PatrolStrategy>());
+    strategies.push_back(std::make_unique<RandomStrategy>());
+
+    ghosts.push_back(Ghost(8, 7, 0, strategies[0].get()));
+    ghosts.push_back(Ghost(9, 7, 1, strategies[1].get()));
+    ghosts.push_back(Ghost(11, 7, 2, strategies[2].get()));
+    ghosts.push_back(Ghost(12, 7, 3, strategies[3].get()));
 }
 
 void Game::addPlayer(int playerId, const std::string& name) {
@@ -101,6 +110,7 @@ void Game::movePlayers() {
         if (newX >= 0 && newX < map.getWidth() &&
             newY >= 0 && newY < map.getHeight() &&
             !map.isWall(newX, newY)) {
+            players[p].setLastMoveDirection(players[p].getDirection());
             players[p].setPosition(newX, newY);
         }
 
@@ -125,46 +135,7 @@ void Game::collectDots() {
 
 void Game::moveGhosts() {
     for (int i = 0; i < (int)ghosts.size(); i++) {
-        Direction dir = Direction::None;
-
-        int closestPlayer = -1;
-        int closestDist = 9999;
-        for (int p = 0; p < (int)players.size(); p++) {
-            if (!players[p].isAlive()) continue;
-            int dist = abs(players[p].getX() - ghosts[i].getX())
-                     + abs(players[p].getY() - ghosts[i].getY());
-            if (dist < closestDist) {
-                closestDist = dist;
-                closestPlayer = p;
-            }
-        }
-
-        if (closestPlayer >= 0 && rand() % 2 == 0) {
-            int dx = players[closestPlayer].getX() - ghosts[i].getX();
-            int dy = players[closestPlayer].getY() - ghosts[i].getY();
-
-            if (abs(dx) > abs(dy)) {
-                if (dx > 0) {
-                    dir = Direction::Right;
-                } else {
-                    dir = Direction::Left;
-                }
-            } else {
-                if (dy > 0) {
-                    dir = Direction::Down;
-                } else {
-                    dir = Direction::Up;
-                }
-            }
-        } else {
-            int r = rand() % 4;
-            switch (r) {
-                case 0: dir = Direction::Up; break;
-                case 1: dir = Direction::Down; break;
-                case 2: dir = Direction::Left; break;
-                case 3: dir = Direction::Right; break;
-            }
-        }
+        Direction dir = ghosts[i].chooseDirection(*this);
 
         int newX = ghosts[i].getX();
         int newY = ghosts[i].getY();
@@ -174,6 +145,7 @@ void Game::moveGhosts() {
             case Direction::Down:  newY++; break;
             case Direction::Left:  newX--; break;
             case Direction::Right: newX++; break;
+            default: continue;
         }
 
         if (newX >= 0 && newX < map.getWidth() &&

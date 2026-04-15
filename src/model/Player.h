@@ -15,6 +15,7 @@ private:
     std::string name;
     int score;
     State state;
+    Direction lastMoveDirection;
 
 public:
     Player(int x, int y, int playerId = 0, const std::string& name = "");
@@ -33,6 +34,10 @@ public:
     void disconnect();
     void setScore(int s);
     void setState(State s);
+
+    /// Ostatni kierunek w jakim gracz sie ruszyl (uzywany przez AmbusherStrategy).
+    Direction getLastMoveDirection() const;
+    void setLastMoveDirection(Direction dir);
 };
 
 #endif

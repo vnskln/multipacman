@@ -1,7 +1,8 @@
 #include "Player.h"
 
 Player::Player(int x, int y, int playerId, const std::string& name)
-    : Entity(x, y), playerId(playerId), name(name), score(0), state(State::Alive) {
+    : Entity(x, y), playerId(playerId), name(name), score(0), state(State::Alive),
+      lastMoveDirection(Direction::None) {
 }
 
 char Player::getSymbol() const {
@@ -46,4 +47,12 @@ void Player::setScore(int s) {
 
 void Player::setState(State s) {
     state = s;
+}
+
+Direction Player::getLastMoveDirection() const {
+    return lastMoveDirection;
+}
+
+void Player::setLastMoveDirection(Direction dir) {
+    lastMoveDirection = dir;
 }
