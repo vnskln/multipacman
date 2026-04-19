@@ -1,9 +1,6 @@
 #include "SfmlRenderer.h"
 #include "Constants.h"
 
-static const int MAP_X = MAP_MARGIN;
-static const int MAP_Y = MAP_MARGIN;
-
 static sf::Color getPlayerColor(int id) {
     if (id == 0) return sf::Color::Yellow;
     if (id == 1) return sf::Color::Green;
@@ -24,17 +21,27 @@ SfmlRenderer::SfmlRenderer(sf::RenderWindow& window, sf::Font& font)
     : window(window), font(font) {
 }
 
+int SfmlRenderer::computeTile(const Map& map) const {
+    int tileByW = (WINDOW_WIDTH - HUD_WIDTH - 2 * MAP_MARGIN) / map.getWidth();
+    int tileByH = (WINDOW_HEIGHT - 2 * MAP_MARGIN) / map.getHeight();
+    return (tileByW < tileByH) ? tileByW : tileByH;
+}
+
 void SfmlRenderer::render(const Game& game) {
     const Map& map = game.getMap();
     const std::vector<Player>& players = game.getPlayers();
     const std::vector<Ghost>& ghosts = game.getGhosts();
     const std::vector<Dot>& dots = game.getDots();
 
+    int tile = computeTile(map);
+    int mapX = MAP_MARGIN;
+    int mapY = MAP_MARGIN;
+
     for (int y = 0; y < map.getHeight(); y++) {
         for (int x = 0; x < map.getWidth(); x++) {
             if (map.isWall(x, y)) {
-                sf::RectangleShape wall({(float)TILE, (float)TILE});
-                wall.setPosition({(float)(MAP_X + x * TILE), (float)(MAP_Y + y * TILE)});
+                sf::RectangleShape wall({(float)tile, (float)tile});
+                wall.setPosition({(float)(mapX + x * tile), (float)(mapY + y * tile)});
                 wall.setFillColor(sf::Color(0, 0, 139));
                 window.draw(wall);
             }
@@ -43,8 +50,8 @@ void SfmlRenderer::render(const Game& game) {
 
     for (int i = 0; i < (int)dots.size(); i++) {
         if (dots[i].isCollected()) continue;
-        float cx = MAP_X + dots[i].getX() * TILE + TILE / 2.f - 3.f;
-        float cy = MAP_Y + dots[i].getY() * TILE + TILE / 2.f - 3.f;
+        float cx = mapX + dots[i].getX() * tile + tile / 2.f - 3.f;
+        float cy = mapY + dots[i].getY() * tile + tile / 2.f - 3.f;
         sf::CircleShape dot(3.f);
         dot.setPosition({cx, cy});
         dot.setFillColor(sf::Color::White);
@@ -52,25 +59,25 @@ void SfmlRenderer::render(const Game& game) {
     }
 
     for (int i = 0; i < (int)ghosts.size(); i++) {
-        sf::RectangleShape ghost({(float)TILE - 4, (float)TILE - 4});
-        ghost.setPosition({(float)(MAP_X + ghosts[i].getX() * TILE + 2),
-                           (float)(MAP_Y + ghosts[i].getY() * TILE + 2)});
-        ghost.setFillColor(getGhostColor(ghosts[i].getId()));
+        sf::RectangleShape ghost({(float)tile - 4, (float)tile - 4});
+        ghost.setPosition({(float)(mapX + ghosts[i].getX() * tile + 2),
+                           (float)(mapY + ghosts[i].getY() * tile + 2)});
+        ghost.setFillColor(getGhostColor(ghosts[i].getId() % 4));
         window.draw(ghost);
     }
 
     for (int p = 0; p < (int)players.size(); p++) {
         if (!players[p].isAlive()) continue;
-        float radius = TILE / 2.f - 2.f;
+        float radius = tile / 2.f - 2.f;
         sf::CircleShape circle(radius);
-        circle.setPosition({(float)(MAP_X + players[p].getX() * TILE + 2),
-                            (float)(MAP_Y + players[p].getY() * TILE + 2)});
+        circle.setPosition({(float)(mapX + players[p].getX() * tile + 2),
+                            (float)(mapY + players[p].getY() * tile + 2)});
         circle.setFillColor(getPlayerColor(players[p].getPlayerId()));
         window.draw(circle);
     }
 
-    int hudX = MAP_X + map.getWidth() * TILE + 20;
-    int hudY = MAP_Y;
+    int hudX = mapX + map.getWidth() * tile + 20;
+    int hudY = mapY;
 
     sf::Text title(font, "SCORES", 20);
     title.setPosition({(float)hudX, (float)hudY});

@@ -13,7 +13,7 @@ int Player::getPlayerId() const {
     return playerId;
 }
 
-std::string Player::getName() const {
+const std::string& Player::getName() const {
     return name;
 }
 

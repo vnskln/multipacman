@@ -20,15 +20,19 @@ void LobbyScreen::handleEvent(const sf::Event& event) {
         float mx = (float)click->position.x;
         float my = (float)click->position.y;
 
-        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 340 && my <= 390) {
+        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 370 && my <= 420) {
+            client.sendChangeMap();
+        }
+
+        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 430 && my <= 480) {
             client.sendAddBot();
         }
 
-        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 400 && my <= 450) {
+        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 490 && my <= 540) {
             client.sendStartGame();
         }
 
-        if (mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 470 && my <= 520) {
+        if (mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 560 && my <= 610) {
             disconnectClicked = true;
         }
     }
@@ -60,46 +64,64 @@ void LobbyScreen::draw(sf::RenderWindow& window) {
         window.draw(playerText);
     }
 
+    std::string mapInfo = "Map: " + client.getLobbyMapName();
+    sf::Text mapText(font, mapInfo, 20);
+    sf::FloatRect mapBounds = mapText.getGlobalBounds();
+    mapText.setPosition({CENTER_X - mapBounds.size.x / 2.f, 340.f});
+    mapText.setFillColor(sf::Color(200, 200, 200));
+    window.draw(mapText);
+
     if (client.isHost()) {
+        sf::RectangleShape mapBtn({200.f, 50.f});
+        mapBtn.setPosition({CENTER_X - 100.f, 370.f});
+        mapBtn.setFillColor(sf::Color(100, 0, 150));
+        window.draw(mapBtn);
+
+        sf::Text mapBtnText(font, "Change Map", 22);
+        sf::FloatRect mbBounds = mapBtnText.getGlobalBounds();
+        mapBtnText.setPosition({CENTER_X - mbBounds.size.x / 2.f, 382.f});
+        mapBtnText.setFillColor(sf::Color::White);
+        window.draw(mapBtnText);
+
         if ((int)client.getLobbyPlayers().size() < MAX_PLAYERS) {
             sf::RectangleShape botBtn({200.f, 50.f});
-            botBtn.setPosition({CENTER_X - 100.f, 340.f});
+            botBtn.setPosition({CENTER_X - 100.f, 430.f});
             botBtn.setFillColor(sf::Color(0, 0, 200));
             window.draw(botBtn);
 
             sf::Text botText(font, "Add Bot", 22);
             sf::FloatRect bbBounds = botText.getGlobalBounds();
-            botText.setPosition({CENTER_X - bbBounds.size.x / 2.f, 352.f});
+            botText.setPosition({CENTER_X - bbBounds.size.x / 2.f, 442.f});
             botText.setFillColor(sf::Color::White);
             window.draw(botText);
         }
 
         sf::RectangleShape startBtn({200.f, 50.f});
-        startBtn.setPosition({CENTER_X - 100.f, 400.f});
+        startBtn.setPosition({CENTER_X - 100.f, 490.f});
         startBtn.setFillColor(sf::Color(0, 150, 0));
         window.draw(startBtn);
 
         sf::Text startText(font, "Start Game", 22);
         sf::FloatRect stBounds = startText.getGlobalBounds();
-        startText.setPosition({CENTER_X - stBounds.size.x / 2.f, 412.f});
+        startText.setPosition({CENTER_X - stBounds.size.x / 2.f, 502.f});
         startText.setFillColor(sf::Color::White);
         window.draw(startText);
     } else {
         sf::Text waitText(font, "Waiting for host...", 20);
         sf::FloatRect wtBounds = waitText.getGlobalBounds();
-        waitText.setPosition({CENTER_X - wtBounds.size.x / 2.f, 412.f});
+        waitText.setPosition({CENTER_X - wtBounds.size.x / 2.f, 502.f});
         waitText.setFillColor(sf::Color(150, 150, 150));
         window.draw(waitText);
     }
 
     sf::RectangleShape dcBtn({200.f, 50.f});
-    dcBtn.setPosition({CENTER_X - 100.f, 470.f});
+    dcBtn.setPosition({CENTER_X - 100.f, 560.f});
     dcBtn.setFillColor(sf::Color(150, 0, 0));
     window.draw(dcBtn);
 
     sf::Text dcText(font, "Disconnect", 22);
     sf::FloatRect dcBounds = dcText.getGlobalBounds();
-    dcText.setPosition({CENTER_X - dcBounds.size.x / 2.f, 482.f});
+    dcText.setPosition({CENTER_X - dcBounds.size.x / 2.f, 572.f});
     dcText.setFillColor(sf::Color::White);
     window.draw(dcText);
 }

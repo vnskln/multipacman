@@ -4,6 +4,8 @@
 #include <SFML/Network.hpp>
 #include <vector>
 #include <memory>
+#include <string>
+#include <utility>
 #include "Game.h"
 #include "ClientConnection.h"
 #include "Protocol.h"
@@ -20,14 +22,21 @@ private:
     Game game;
     bool inGame;
     int nextPlayerId;
-    int botCount;
+
+    std::vector<std::pair<int, std::string>> pendingBots;
+    std::vector<std::string> availableMaps;
+    int selectedMapIndex;
+    std::string currentMapName;
+
     sf::Clock gameClock;
 
+    void scanMaps();
     void acceptNewClient();
     void handleLobbyMessage(ClientConnection& client);
     void handleGameMessage(ClientConnection& client);
     void removeClient(ClientConnection& client);
     Direction directionFromNetwork(std::int32_t dir);
+    int countLobbyPlayers() const;
 
     void broadcastLobbyUpdate();
     void broadcastGameState();

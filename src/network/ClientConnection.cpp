@@ -12,7 +12,7 @@ int ClientConnection::getPlayerId() const {
     return playerId;
 }
 
-std::string ClientConnection::getName() const {
+const std::string& ClientConnection::getName() const {
     return name;
 }
 

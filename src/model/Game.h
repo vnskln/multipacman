@@ -26,6 +26,7 @@ private:
     bool playerWon;
     int tickCount;
 
+    void createGhosts();
     void spawnDots();
     void moveBots();
     void movePlayers();
@@ -36,6 +37,10 @@ private:
 
 public:
     Game();
+    /// Tworzy gre z mapa zaladowana z pliku (serwer).
+    Game(const std::string& mapFile);
+    /// Tworzy gre z linii layoutu otrzymanych przez siec (klient).
+    Game(const std::vector<std::string>& mapLines, const std::string& mapName);
     void addPlayer(int playerId, const std::string& name);
     void addBot(int playerId, const std::string& name);
     void removePlayer(int playerId);

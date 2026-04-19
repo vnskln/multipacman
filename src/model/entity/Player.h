@@ -24,7 +24,7 @@ public:
     char getSymbol() const override;
 
     int getPlayerId() const;
-    std::string getName() const;
+    const std::string& getName() const;
     State getState() const;
     int getScore() const;
     bool isAlive() const;

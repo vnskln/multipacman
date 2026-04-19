@@ -2,6 +2,7 @@
 #define SFMLRENDERER_H
 
 #include "Renderer.h"
+#include "Map.h"
 #include <SFML/Graphics.hpp>
 
 /// Renderer rysujacy gre w oknie SFML (ksztalty geometryczne).
@@ -9,6 +10,8 @@ class SfmlRenderer : public Renderer {
 private:
     sf::RenderWindow& window;
     sf::Font& font;
+
+    int computeTile(const Map& map) const;
 
 public:
     SfmlRenderer(sf::RenderWindow& window, sf::Font& font);

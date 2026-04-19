@@ -30,10 +30,12 @@ private:
 
     std::vector<LobbyPlayer> lobbyPlayers;
 
+    std::string lobbyMapName;
+
     void handleJoinAccepted(sf::Packet& packet);
     void handleJoinRejected(sf::Packet& packet);
     void handleLobbyUpdate(sf::Packet& packet);
-    void handleGameStarted();
+    void handleGameStarted(sf::Packet& packet);
     void handleGameState(sf::Packet& packet);
     void handleGameOver(sf::Packet& packet);
 
@@ -47,6 +49,8 @@ public:
     void sendStartGame();
     /// Wysyla zadanie dodania bota do serwera (tylko host).
     void sendAddBot();
+    /// Wysyla zadanie zmiany mapy do serwera (tylko host).
+    void sendChangeMap();
     /// Odbiera i przetwarza wiadomosci z serwera. Nalezy wolac co klatke.
     void receiveMessages();
     void disconnect();
@@ -59,6 +63,7 @@ public:
     bool isGameOver() const;
     bool isHost() const;
     const std::vector<LobbyPlayer>& getLobbyPlayers() const;
+    const std::string& getLobbyMapName() const;
 };
 
 #endif

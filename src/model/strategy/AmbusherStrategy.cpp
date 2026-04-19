@@ -24,6 +24,8 @@ Direction AmbusherStrategy::chooseDirection(const Ghost& ghost, const Game& game
     int targetX = players[closestIdx].getX();
     int targetY = players[closestIdx].getY();
 
+    const Map& map = game.getMap();
+
     switch (players[closestIdx].getLastMoveDirection()) {
         case Direction::Up:    targetY -= 4; break;
         case Direction::Down:  targetY += 4; break;
@@ -31,6 +33,11 @@ Direction AmbusherStrategy::chooseDirection(const Ghost& ghost, const Game& game
         case Direction::Right: targetX += 4; break;
         default: break;
     }
+
+    if (targetX < 0) targetX = 0;
+    if (targetY < 0) targetY = 0;
+    if (targetX >= map.getWidth()) targetX = map.getWidth() - 1;
+    if (targetY >= map.getHeight()) targetY = map.getHeight() - 1;
 
     int dx = targetX - ghost.getX();
     int dy = targetY - ghost.getY();
@@ -44,7 +51,6 @@ Direction AmbusherStrategy::chooseDirection(const Ghost& ghost, const Game& game
         secondary = (dx > 0) ? Direction::Right : Direction::Left;
     }
 
-    const Map& map = game.getMap();
     if (canMove(ghost.getX(), ghost.getY(), primary, map)) return primary;
     if (canMove(ghost.getX(), ghost.getY(), secondary, map)) return secondary;
 

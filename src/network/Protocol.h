@@ -17,6 +17,7 @@ const std::int32_t MSG_JOIN = 1;
 const std::int32_t MSG_PLAYER_INPUT = 2;
 const std::int32_t MSG_START_GAME = 3;
 const std::int32_t MSG_ADD_BOT = 4;
+const std::int32_t MSG_CHANGE_MAP = 5;
 
 /// Wiadomosci od serwera do klienta.
 const std::int32_t MSG_JOIN_ACCEPTED = 10;

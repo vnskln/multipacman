@@ -4,34 +4,56 @@
 #include "PatrolStrategy.h"
 #include "RandomStrategy.h"
 #include <cstdlib>
+#include <iostream>
 
 Game::Game() : gameOver(false), playerWon(false), tickCount(0) {
-    strategies.push_back(std::make_unique<ChaserStrategy>());
-    strategies.push_back(std::make_unique<AmbusherStrategy>());
-    strategies.push_back(std::make_unique<PatrolStrategy>());
-    strategies.push_back(std::make_unique<RandomStrategy>());
+}
 
-    ghosts.push_back(Ghost(8, 7, 0, strategies[0].get()));
-    ghosts.push_back(Ghost(9, 7, 1, strategies[1].get()));
-    ghosts.push_back(Ghost(11, 7, 2, strategies[2].get()));
-    ghosts.push_back(Ghost(12, 7, 3, strategies[3].get()));
+Game::Game(const std::string& mapFile) : gameOver(false), playerWon(false), tickCount(0) {
+    if (!map.loadFromFile(mapFile)) {
+        std::cerr << "Failed to load map: " << mapFile << std::endl;
+    }
+    createGhosts();
+}
+
+Game::Game(const std::vector<std::string>& mapLines, const std::string& mapName)
+    : gameOver(false), playerWon(false), tickCount(0) {
+    map.loadFromLines(mapLines, mapName);
+    createGhosts();
+}
+
+void Game::createGhosts() {
+    const std::vector<SpawnPoint>& spawns = map.getGhostSpawns();
+    for (int i = 0; i < (int)spawns.size(); i++) {
+        switch (i % 4) {
+            case 0: strategies.push_back(std::make_unique<ChaserStrategy>()); break;
+            case 1: strategies.push_back(std::make_unique<AmbusherStrategy>()); break;
+            case 2: strategies.push_back(std::make_unique<PatrolStrategy>()); break;
+            case 3: strategies.push_back(std::make_unique<RandomStrategy>()); break;
+        }
+        ghosts.push_back(Ghost(spawns[i].x, spawns[i].y, i, strategies[i].get()));
+    }
 }
 
 void Game::addPlayer(int playerId, const std::string& name) {
-    int startX = 1;
-    int startY = 1;
-    if (playerId == 1) { startX = 19; startY = 1; }
-    if (playerId == 2) { startX = 1;  startY = 13; }
-    if (playerId == 3) { startX = 19; startY = 13; }
+    const std::vector<SpawnPoint>& spawns = map.getPlayerSpawns();
+    int idx = (int)players.size();
+    int startX = 1, startY = 1;
+    if (idx < (int)spawns.size()) {
+        startX = spawns[idx].x;
+        startY = spawns[idx].y;
+    }
     players.push_back(Player(startX, startY, playerId, name));
 }
 
 void Game::addBot(int playerId, const std::string& name) {
-    int startX = 1;
-    int startY = 1;
-    if (playerId == 1) { startX = 19; startY = 1; }
-    if (playerId == 2) { startX = 1;  startY = 13; }
-    if (playerId == 3) { startX = 19; startY = 13; }
+    const std::vector<SpawnPoint>& spawns = map.getPlayerSpawns();
+    int idx = (int)players.size();
+    int startX = 1, startY = 1;
+    if (idx < (int)spawns.size()) {
+        startX = spawns[idx].x;
+        startY = spawns[idx].y;
+    }
     players.push_back(Player(startX, startY, playerId, name, true));
 }
 

@@ -37,6 +37,14 @@ public:
     int getHeight() const {
         return height;
     }
+
+    /// Zmienia rozmiar siatki i wypelnia nowa wartoscia domyslna.
+    void reset(int newWidth, int newHeight, T defaultValue) {
+        width = newWidth;
+        height = newHeight;
+        cells.clear();
+        cells.resize(width * height, defaultValue);
+    }
 };
 
 #endif

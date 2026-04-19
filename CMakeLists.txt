@@ -51,3 +51,5 @@ add_executable(multipacman_client
 )
 target_link_libraries(multipacman_client PRIVATE SFML::Graphics SFML::Network SFML::System ws2_32)
 target_link_options(multipacman_client PRIVATE -mwindows)
+
+file(COPY ${CMAKE_SOURCE_DIR}/maps DESTINATION ${CMAKE_BINARY_DIR})

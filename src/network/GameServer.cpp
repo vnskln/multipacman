@@ -1,14 +1,39 @@
 #include "GameServer.h"
 #include <iostream>
+#include <filesystem>
+#include <algorithm>
 
-GameServer::GameServer(unsigned short port) : inGame(false), nextPlayerId(0), botCount(0) {
+namespace fs = std::filesystem;
+
+GameServer::GameServer(unsigned short port)
+    : inGame(false), nextPlayerId(0), selectedMapIndex(0) {
+
+    scanMaps();
+    currentMapName = availableMaps[0];
+
     if (listener.listen(port) != sf::Socket::Status::Done) {
         std::cerr << "Cannot listen on port " << port << std::endl;
         return;
     }
     selector.add(listener);
     std::cout << "Server started on port " << port << std::endl;
+    std::cout << "Maps available: " << (int)availableMaps.size() << std::endl;
     std::cout << "Waiting for players..." << std::endl;
+}
+
+void GameServer::scanMaps() {
+    availableMaps.clear();
+    if (fs::exists("maps") && fs::is_directory("maps")) {
+        for (auto& entry : fs::directory_iterator("maps")) {
+            if (entry.path().extension() == ".map") {
+                availableMaps.push_back(entry.path().stem().string());
+            }
+        }
+    }
+    std::sort(availableMaps.begin(), availableMaps.end());
+    if (availableMaps.empty()) {
+        availableMaps.push_back("default");
+    }
 }
 
 void GameServer::run() {
@@ -55,12 +80,21 @@ void GameServer::run() {
                 game = Game();
                 inGame = false;
                 nextPlayerId = 0;
-                botCount = 0;
+                pendingBots.clear();
 
                 std::cout << "Waiting for players..." << std::endl;
             }
         }
     }
+}
+
+int GameServer::countLobbyPlayers() const {
+    int count = 0;
+    for (int i = 0; i < (int)clients.size(); i++) {
+        if (clients[i]->getPlayerId() >= 0) count++;
+    }
+    count += (int)pendingBots.size();
+    return count;
 }
 
 void GameServer::acceptNewClient() {
@@ -70,7 +104,7 @@ void GameServer::acceptNewClient() {
         return;
     }
 
-    if ((int)clients.size() + botCount >= MAX_PLAYERS) {
+    if (countLobbyPlayers() >= MAX_PLAYERS) {
         sf::Packet reject;
         reject << MSG_JOIN_REJECTED << std::string("Server is full");
         (void)connection->getSocket().send(reject);
@@ -108,7 +142,6 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
 
         client.setPlayerId(id);
         client.setName(name);
-        game.addPlayer(id, name);
 
         sf::Packet accept;
         accept << MSG_JOIN_ACCEPTED << (std::int32_t)id;
@@ -121,18 +154,13 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
 
     if (msgType == MSG_ADD_BOT) {
         if (client.getPlayerId() == 0) {
-            int totalPlayers = (int)clients.size() + botCount;
-            for (int i = 0; i < (int)clients.size(); i++) {
-                if (clients[i]->getPlayerId() < 0) totalPlayers--;
-            }
-            if (totalPlayers >= MAX_PLAYERS) return;
+            if (countLobbyPlayers() >= MAX_PLAYERS) return;
 
             int botId = nextPlayerId;
             nextPlayerId++;
-            botCount++;
 
-            std::string botName = "Bot " + std::to_string(botCount);
-            game.addBot(botId, botName);
+            std::string botName = "Bot " + std::to_string((int)pendingBots.size() + 1);
+            pendingBots.push_back({botId, botName});
 
             std::cout << botName << " added as player " << botId << std::endl;
 
@@ -140,17 +168,45 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
         }
     }
 
+    if (msgType == MSG_CHANGE_MAP) {
+        if (client.getPlayerId() == 0 && (int)availableMaps.size() > 1) {
+            selectedMapIndex = (selectedMapIndex + 1) % (int)availableMaps.size();
+            currentMapName = availableMaps[selectedMapIndex];
+            std::cout << "Map changed to: " << currentMapName << std::endl;
+            broadcastLobbyUpdate();
+        }
+    }
+
     if (msgType == MSG_START_GAME) {
-        if (client.getPlayerId() == 0) {
+        if (client.getPlayerId() == 0 && countLobbyPlayers() > 0) {
+            std::string mapPath = "maps/" + currentMapName + ".map";
+            game = Game(mapPath);
+
+            for (int i = 0; i < (int)clients.size(); i++) {
+                if (clients[i]->getPlayerId() >= 0) {
+                    game.addPlayer(clients[i]->getPlayerId(), clients[i]->getName());
+                }
+            }
+            for (int i = 0; i < (int)pendingBots.size(); i++) {
+                game.addBot(pendingBots[i].first, pendingBots[i].second);
+            }
+
             game.start();
             inGame = true;
             gameClock.restart();
 
             sf::Packet started;
-            started << MSG_GAME_STARTED;
+            started << MSG_GAME_STARTED << currentMapName;
+
+            const std::vector<std::string>& lines = game.getMap().getLayoutLines();
+            started << (std::int32_t)lines.size();
+            for (int i = 0; i < (int)lines.size(); i++) {
+                started << lines[i];
+            }
+
             broadcast(started);
 
-            std::cout << "Game started!" << std::endl;
+            std::cout << "Game started on map: " << currentMapName << std::endl;
         }
     }
 }
@@ -182,7 +238,9 @@ void GameServer::removeClient(ClientConnection& client) {
     std::cout << client.getName() << " disconnected" << std::endl;
 
     selector.remove(client.getSocket());
-    game.removePlayer(client.getPlayerId());
+    if (inGame) {
+        game.removePlayer(client.getPlayerId());
+    }
     client.disconnect();
 
     if (!inGame) {
@@ -201,16 +259,9 @@ Direction GameServer::directionFromNetwork(std::int32_t dir) {
 void GameServer::broadcastLobbyUpdate() {
     sf::Packet packet;
     packet << MSG_LOBBY_UPDATE;
+    packet << currentMapName;
 
-    const std::vector<Player>& players = game.getPlayers();
-
-    std::int32_t count = 0;
-    for (int i = 0; i < (int)clients.size(); i++) {
-        if (clients[i]->getPlayerId() >= 0) count++;
-    }
-    for (int i = 0; i < (int)players.size(); i++) {
-        if (players[i].isBot()) count++;
-    }
+    std::int32_t count = (std::int32_t)countLobbyPlayers();
     packet << count;
 
     for (int i = 0; i < (int)clients.size(); i++) {
@@ -219,11 +270,9 @@ void GameServer::broadcastLobbyUpdate() {
                    << clients[i]->getName();
         }
     }
-    for (int i = 0; i < (int)players.size(); i++) {
-        if (players[i].isBot()) {
-            packet << (std::int32_t)players[i].getPlayerId()
-                   << players[i].getName();
-        }
+    for (int i = 0; i < (int)pendingBots.size(); i++) {
+        packet << (std::int32_t)pendingBots[i].first
+               << pendingBots[i].second;
     }
 
     broadcast(packet);

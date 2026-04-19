@@ -18,7 +18,7 @@ public:
 
     sf::TcpSocket& getSocket();
     int getPlayerId() const;
-    std::string getName() const;
+    const std::string& getName() const;
     bool isConnected() const;
 
     void setPlayerId(int id);

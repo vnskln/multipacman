@@ -7,12 +7,12 @@ GameClient::GameClient()
 }
 
 bool GameClient::connect(const std::string& ip, unsigned short port, const std::string& name) {
-    game = Game();
     myPlayerId = -1;
     inLobby = false;
     gameStarted = false;
     gameOver = false;
     lobbyPlayers.clear();
+    lobbyMapName.clear();
     selector.clear();
 
     auto address = sf::IpAddress::resolve(ip);
@@ -55,6 +55,12 @@ void GameClient::sendAddBot() {
     (void)socket.send(packet);
 }
 
+void GameClient::sendChangeMap() {
+    sf::Packet packet;
+    packet << MSG_CHANGE_MAP;
+    (void)socket.send(packet);
+}
+
 void GameClient::receiveMessages() {
     if (!connected) return;
 
@@ -79,7 +85,7 @@ void GameClient::receiveMessages() {
     if (msgType == MSG_JOIN_ACCEPTED) handleJoinAccepted(packet);
     if (msgType == MSG_JOIN_REJECTED) handleJoinRejected(packet);
     if (msgType == MSG_LOBBY_UPDATE) handleLobbyUpdate(packet);
-    if (msgType == MSG_GAME_STARTED) handleGameStarted();
+    if (msgType == MSG_GAME_STARTED) handleGameStarted(packet);
     if (msgType == MSG_GAME_STATE) handleGameState(packet);
     if (msgType == MSG_GAME_OVER) handleGameOver(packet);
 }
@@ -99,6 +105,10 @@ void GameClient::handleJoinRejected(sf::Packet& packet) {
 }
 
 void GameClient::handleLobbyUpdate(sf::Packet& packet) {
+    std::string mapName;
+    packet >> mapName;
+    lobbyMapName = mapName;
+
     std::int32_t count;
     packet >> count;
 
@@ -114,14 +124,28 @@ void GameClient::handleLobbyUpdate(sf::Packet& packet) {
     }
 }
 
-void GameClient::handleGameStarted() {
-    inLobby = false;
-    gameStarted = true;
+void GameClient::handleGameStarted(sf::Packet& packet) {
+    std::string mapName;
+    packet >> mapName;
+
+    std::int32_t lineCount;
+    packet >> lineCount;
+    std::vector<std::string> lines;
+    for (int i = 0; i < lineCount; i++) {
+        std::string line;
+        packet >> line;
+        lines.push_back(line);
+    }
+
+    game = Game(lines, mapName);
 
     for (int i = 0; i < (int)lobbyPlayers.size(); i++) {
         game.addPlayer(lobbyPlayers[i].id, lobbyPlayers[i].name);
     }
     game.start();
+
+    inLobby = false;
+    gameStarted = true;
 }
 
 void GameClient::handleGameState(sf::Packet& packet) {
@@ -226,4 +250,8 @@ bool GameClient::isHost() const {
 
 const std::vector<LobbyPlayer>& GameClient::getLobbyPlayers() const {
     return lobbyPlayers;
+}
+
+const std::string& GameClient::getLobbyMapName() const {
+    return lobbyMapName;
 }
