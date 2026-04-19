@@ -1,8 +1,8 @@
 #include "Player.h"
 
-Player::Player(int x, int y, int playerId, const std::string& name)
+Player::Player(int x, int y, int playerId, const std::string& name, bool bot)
     : Entity(x, y), playerId(playerId), name(name), score(0), state(State::Alive),
-      lastMoveDirection(Direction::None) {
+      lastMoveDirection(Direction::None), bot(bot) {
 }
 
 char Player::getSymbol() const {
@@ -55,4 +55,8 @@ Direction Player::getLastMoveDirection() const {
 
 void Player::setLastMoveDirection(Direction dir) {
     lastMoveDirection = dir;
+}
+
+bool Player::isBot() const {
+    return bot;
 }

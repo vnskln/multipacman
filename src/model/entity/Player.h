@@ -4,7 +4,7 @@
 #include "Entity.h"
 #include <string>
 
-/// Gracz sterowany przez czlowieka przez siec.
+/// Gracz sterowany przez czlowieka przez siec lub bot AI.
 class Player : public Entity {
 public:
     /// Stan gracza w rozgrywce.
@@ -16,9 +16,10 @@ private:
     int score;
     State state;
     Direction lastMoveDirection;
+    bool bot;
 
 public:
-    Player(int x, int y, int playerId = 0, const std::string& name = "");
+    Player(int x, int y, int playerId = 0, const std::string& name = "", bool bot = false);
 
     char getSymbol() const override;
 
@@ -38,6 +39,9 @@ public:
     /// Ostatni kierunek w jakim gracz sie ruszyl (uzywany przez AmbusherStrategy).
     Direction getLastMoveDirection() const;
     void setLastMoveDirection(Direction dir);
+
+    /// Czy gracz jest botem AI.
+    bool isBot() const;
 };
 
 #endif

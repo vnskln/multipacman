@@ -1,7 +1,7 @@
 #include "GameServer.h"
 #include <iostream>
 
-GameServer::GameServer(unsigned short port) : inGame(false), nextPlayerId(0) {
+GameServer::GameServer(unsigned short port) : inGame(false), nextPlayerId(0), botCount(0) {
     if (listener.listen(port) != sf::Socket::Status::Done) {
         std::cerr << "Cannot listen on port " << port << std::endl;
         return;
@@ -55,6 +55,7 @@ void GameServer::run() {
                 game = Game();
                 inGame = false;
                 nextPlayerId = 0;
+                botCount = 0;
 
                 std::cout << "Waiting for players..." << std::endl;
             }
@@ -69,7 +70,7 @@ void GameServer::acceptNewClient() {
         return;
     }
 
-    if ((int)clients.size() >= MAX_PLAYERS) {
+    if ((int)clients.size() + botCount >= MAX_PLAYERS) {
         sf::Packet reject;
         reject << MSG_JOIN_REJECTED << std::string("Server is full");
         (void)connection->getSocket().send(reject);
@@ -116,6 +117,27 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
         std::cout << name << " joined as player " << id << std::endl;
 
         broadcastLobbyUpdate();
+    }
+
+    if (msgType == MSG_ADD_BOT) {
+        if (client.getPlayerId() == 0) {
+            int totalPlayers = (int)clients.size() + botCount;
+            for (int i = 0; i < (int)clients.size(); i++) {
+                if (clients[i]->getPlayerId() < 0) totalPlayers--;
+            }
+            if (totalPlayers >= MAX_PLAYERS) return;
+
+            int botId = nextPlayerId;
+            nextPlayerId++;
+            botCount++;
+
+            std::string botName = "Bot " + std::to_string(botCount);
+            game.addBot(botId, botName);
+
+            std::cout << botName << " added as player " << botId << std::endl;
+
+            broadcastLobbyUpdate();
+        }
     }
 
     if (msgType == MSG_START_GAME) {
@@ -180,11 +202,14 @@ void GameServer::broadcastLobbyUpdate() {
     sf::Packet packet;
     packet << MSG_LOBBY_UPDATE;
 
+    const std::vector<Player>& players = game.getPlayers();
+
     std::int32_t count = 0;
     for (int i = 0; i < (int)clients.size(); i++) {
-        if (clients[i]->getPlayerId() >= 0) {
-            count++;
-        }
+        if (clients[i]->getPlayerId() >= 0) count++;
+    }
+    for (int i = 0; i < (int)players.size(); i++) {
+        if (players[i].isBot()) count++;
     }
     packet << count;
 
@@ -192,6 +217,12 @@ void GameServer::broadcastLobbyUpdate() {
         if (clients[i]->getPlayerId() >= 0) {
             packet << (std::int32_t)clients[i]->getPlayerId()
                    << clients[i]->getName();
+        }
+    }
+    for (int i = 0; i < (int)players.size(); i++) {
+        if (players[i].isBot()) {
+            packet << (std::int32_t)players[i].getPlayerId()
+                   << players[i].getName();
         }
     }
 

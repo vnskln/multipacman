@@ -26,6 +26,15 @@ void Game::addPlayer(int playerId, const std::string& name) {
     players.push_back(Player(startX, startY, playerId, name));
 }
 
+void Game::addBot(int playerId, const std::string& name) {
+    int startX = 1;
+    int startY = 1;
+    if (playerId == 1) { startX = 19; startY = 1; }
+    if (playerId == 2) { startX = 1;  startY = 13; }
+    if (playerId == 3) { startX = 19; startY = 13; }
+    players.push_back(Player(startX, startY, playerId, name, true));
+}
+
 void Game::removePlayer(int playerId) {
     for (int i = 0; i < (int)players.size(); i++) {
         if (players[i].getPlayerId() == playerId) {
@@ -85,11 +94,21 @@ void Game::update() {
     collectDots();
 
     if (tickCount % 2 == 0) {
+        moveBots();
         moveGhosts();
     }
 
     checkCollisions();
     checkWin();
+}
+
+void Game::moveBots() {
+    for (int p = 0; p < (int)players.size(); p++) {
+        if (!players[p].isBot()) continue;
+        if (!players[p].isAlive()) continue;
+        Direction dir = botStrategy.chooseDirection(players[p], *this);
+        players[p].setDirection(dir);
+    }
 }
 
 void Game::movePlayers() {

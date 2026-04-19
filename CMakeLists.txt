@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(MultiPacman)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 set(SFML_STATIC_LIBRARIES ON)
@@ -13,19 +14,20 @@ set_target_properties(freetype PROPERTIES
     INTERFACE_LINK_LIBRARIES "bz2;png16;z;harfbuzz;graphite2;brotlidec;brotlicommon;rpcrt4;usp10;dwrite;glib-2.0;intl;pcre2-8;iconv;shlwapi;ole32"
 )
 
-include_directories(src src/model src/network src/rendering src/ui)
+include_directories(src src/model src/model/entity src/model/strategy src/network src/rendering src/ui)
 
 set(GAME_SOURCES
     src/model/map.cpp
-    src/model/Entity.cpp
-    src/model/Player.cpp
-    src/model/Ghost.cpp
-    src/model/Dot.cpp
+    src/model/entity/Entity.cpp
+    src/model/entity/Player.cpp
+    src/model/entity/Ghost.cpp
+    src/model/entity/Dot.cpp
     src/model/Game.cpp
-    src/model/ChaserStrategy.cpp
-    src/model/AmbusherStrategy.cpp
-    src/model/PatrolStrategy.cpp
-    src/model/RandomStrategy.cpp
+    src/model/strategy/ChaserStrategy.cpp
+    src/model/strategy/AmbusherStrategy.cpp
+    src/model/strategy/PatrolStrategy.cpp
+    src/model/strategy/RandomStrategy.cpp
+    src/model/strategy/BotStrategy.cpp
 )
 
 add_executable(multipacman_server

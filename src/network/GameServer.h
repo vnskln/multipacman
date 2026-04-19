@@ -20,6 +20,7 @@ private:
     Game game;
     bool inGame;
     int nextPlayerId;
+    int botCount;
     sf::Clock gameClock;
 
     void acceptNewClient();

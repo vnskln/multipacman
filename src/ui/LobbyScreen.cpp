@@ -1,5 +1,6 @@
 #include "LobbyScreen.h"
 #include "Constants.h"
+#include "Protocol.h"
 
 static sf::Color getPlayerColor(int id) {
     if (id == 0) return sf::Color::Yellow;
@@ -18,6 +19,10 @@ void LobbyScreen::handleEvent(const sf::Event& event) {
     if (click) {
         float mx = (float)click->position.x;
         float my = (float)click->position.y;
+
+        if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 340 && my <= 390) {
+            client.sendAddBot();
+        }
 
         if (client.isHost() && mx >= CENTER_X - 100 && mx <= CENTER_X + 100 && my >= 400 && my <= 450) {
             client.sendStartGame();
@@ -56,6 +61,19 @@ void LobbyScreen::draw(sf::RenderWindow& window) {
     }
 
     if (client.isHost()) {
+        if ((int)client.getLobbyPlayers().size() < MAX_PLAYERS) {
+            sf::RectangleShape botBtn({200.f, 50.f});
+            botBtn.setPosition({CENTER_X - 100.f, 340.f});
+            botBtn.setFillColor(sf::Color(0, 0, 200));
+            window.draw(botBtn);
+
+            sf::Text botText(font, "Add Bot", 22);
+            sf::FloatRect bbBounds = botText.getGlobalBounds();
+            botText.setPosition({CENTER_X - bbBounds.size.x / 2.f, 352.f});
+            botText.setFillColor(sf::Color::White);
+            window.draw(botText);
+        }
+
         sf::RectangleShape startBtn({200.f, 50.f});
         startBtn.setPosition({CENTER_X - 100.f, 400.f});
         startBtn.setFillColor(sf::Color(0, 150, 0));

@@ -45,6 +45,8 @@ public:
     /// Wysyla kierunek ruchu do serwera.
     void sendInput(std::int32_t dir);
     void sendStartGame();
+    /// Wysyla zadanie dodania bota do serwera (tylko host).
+    void sendAddBot();
     /// Odbiera i przetwarza wiadomosci z serwera. Nalezy wolac co klatke.
     void receiveMessages();
     void disconnect();

@@ -6,6 +6,7 @@
 #include "Ghost.h"
 #include "Dot.h"
 #include "GhostStrategy.h"
+#include "BotStrategy.h"
 #include <vector>
 #include <memory>
 
@@ -20,11 +21,13 @@ private:
     std::vector<Ghost> ghosts;
     std::vector<Dot> dots;
     std::vector<std::unique_ptr<GhostStrategy>> strategies;
+    BotStrategy botStrategy;
     bool gameOver;
     bool playerWon;
     int tickCount;
 
     void spawnDots();
+    void moveBots();
     void movePlayers();
     void moveGhosts();
     void collectDots();
@@ -34,6 +37,7 @@ private:
 public:
     Game();
     void addPlayer(int playerId, const std::string& name);
+    void addBot(int playerId, const std::string& name);
     void removePlayer(int playerId);
     /// Rozpoczyna gre - tworzy kropki na mapie.
     void start();

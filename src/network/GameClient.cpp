@@ -49,6 +49,12 @@ void GameClient::sendStartGame() {
     (void)socket.send(packet);
 }
 
+void GameClient::sendAddBot() {
+    sf::Packet packet;
+    packet << MSG_ADD_BOT;
+    (void)socket.send(packet);
+}
+
 void GameClient::receiveMessages() {
     if (!connected) return;
 
