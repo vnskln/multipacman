@@ -93,7 +93,20 @@ void Game::spawnDots() {
             }
             if (isGhostSpawn) continue;
 
-            dots.push_back(Dot(x, y));
+            bool isPelletSpawn = false;
+            const std::vector<SpawnPoint>& pellets = map.getPelletSpawns();
+            for (int i = 0; i < (int)pellets.size(); i++) {
+                if (x == pellets[i].x && y == pellets[i].y) {
+                    isPelletSpawn = true;
+                    break;
+                }
+            }
+
+            if (isPelletSpawn) {
+                dots.push_back(Dot(x, y, 50, true));
+            } else {
+                dots.push_back(Dot(x, y));
+            }
         }
     }
 }
@@ -118,6 +131,10 @@ void Game::update() {
     if (tickCount % 2 == 0) {
         moveBots();
         moveGhosts();
+    }
+
+    for (int i = 0; i < (int)ghosts.size(); i++) {
+        ghosts[i].updateFrightened();
     }
 
     checkCollisions();
@@ -169,6 +186,12 @@ void Game::collectDots() {
                 dots[i].getY() == players[p].getY()) {
                 dots[i].collect();
                 players[p].addScore(dots[i].getValue());
+
+                if (dots[i].isPowerPellet()) {
+                    for (int g = 0; g < (int)ghosts.size(); g++) {
+                        ghosts[g].setFrightened(50);
+                    }
+                }
             }
         }
     }
@@ -202,9 +225,15 @@ void Game::checkCollisions() {
         if (!players[p].isAlive()) continue;
 
         for (int i = 0; i < (int)ghosts.size(); i++) {
+            if (ghosts[i].isRespawning()) continue;
             if (ghosts[i].getX() == players[p].getX() &&
                 ghosts[i].getY() == players[p].getY()) {
-                players[p].kill();
+                if (ghosts[i].isFrightened()) {
+                    ghosts[i].respawn();
+                    players[p].addScore(200);
+                } else {
+                    players[p].kill();
+                }
                 break;
             }
         }

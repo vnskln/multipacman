@@ -35,7 +35,7 @@ void ConsoleRenderer::render(const Game& game) {
             if (!drawn) {
                 for (int i = 0; i < (int)dots.size(); i++) {
                     if (!dots[i].isCollected() && x == dots[i].getX() && y == dots[i].getY()) {
-                        std::cout << '.';
+                        std::cout << dots[i].getSymbol();
                         drawn = true;
                         break;
                     }

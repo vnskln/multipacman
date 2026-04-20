@@ -299,14 +299,17 @@ void GameServer::broadcastGameState() {
     for (int i = 0; i < (int)ghosts.size(); i++) {
         packet << (std::int32_t)ghosts[i].getId()
                << (std::int32_t)ghosts[i].getX()
-               << (std::int32_t)ghosts[i].getY();
+               << (std::int32_t)ghosts[i].getY()
+               << (std::int32_t)(ghosts[i].isFrightened() ? 1 : 0)
+               << (std::int32_t)(ghosts[i].isRespawning() ? 1 : 0);
     }
 
     packet << (std::int32_t)dots.size();
     for (int i = 0; i < (int)dots.size(); i++) {
         packet << (std::int32_t)dots[i].getX()
                << (std::int32_t)dots[i].getY()
-               << (std::int32_t)(dots[i].isCollected() ? 1 : 0);
+               << (std::int32_t)(dots[i].isCollected() ? 1 : 0)
+               << (std::int32_t)(dots[i].isPowerPellet() ? 1 : 0);
     }
 
     packet << (std::int32_t)(game.isOver() ? 1 : 0);

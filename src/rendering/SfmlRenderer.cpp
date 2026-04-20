@@ -50,19 +50,34 @@ void SfmlRenderer::render(const Game& game) {
 
     for (int i = 0; i < (int)dots.size(); i++) {
         if (dots[i].isCollected()) continue;
-        float cx = mapX + dots[i].getX() * tile + tile / 2.f - 3.f;
-        float cy = mapY + dots[i].getY() * tile + tile / 2.f - 3.f;
-        sf::CircleShape dot(3.f);
-        dot.setPosition({cx, cy});
-        dot.setFillColor(sf::Color::White);
-        window.draw(dot);
+        if (dots[i].isPowerPellet()) {
+            float radius = 8.f;
+            float cx = mapX + dots[i].getX() * tile + tile / 2.f - radius;
+            float cy = mapY + dots[i].getY() * tile + tile / 2.f - radius;
+            sf::CircleShape pellet(radius);
+            pellet.setPosition({cx, cy});
+            pellet.setFillColor(sf::Color::White);
+            window.draw(pellet);
+        } else {
+            float cx = mapX + dots[i].getX() * tile + tile / 2.f - 3.f;
+            float cy = mapY + dots[i].getY() * tile + tile / 2.f - 3.f;
+            sf::CircleShape dot(3.f);
+            dot.setPosition({cx, cy});
+            dot.setFillColor(sf::Color::White);
+            window.draw(dot);
+        }
     }
 
     for (int i = 0; i < (int)ghosts.size(); i++) {
+        if (ghosts[i].isRespawning()) continue;
         sf::RectangleShape ghost({(float)tile - 4, (float)tile - 4});
         ghost.setPosition({(float)(mapX + ghosts[i].getX() * tile + 2),
                            (float)(mapY + ghosts[i].getY() * tile + 2)});
-        ghost.setFillColor(getGhostColor(ghosts[i].getId() % 4));
+        if (ghosts[i].isFrightened()) {
+            ghost.setFillColor(sf::Color::Blue);
+        } else {
+            ghost.setFillColor(getGhostColor(ghosts[i].getId() % 4));
+        }
         window.draw(ghost);
     }
 

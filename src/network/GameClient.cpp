@@ -172,11 +172,16 @@ void GameClient::handleGameState(sf::Packet& packet) {
 
     std::vector<Ghost>& ghosts = game.getGhosts();
     for (int i = 0; i < ghostCount; i++) {
-        std::int32_t id, x, y;
-        packet >> id >> x >> y;
+        std::int32_t id, x, y, frightened, respawning;
+        packet >> id >> x >> y >> frightened >> respawning;
 
         if (i < (int)ghosts.size()) {
             ghosts[i].setPosition(x, y);
+            if (frightened == 1) {
+                ghosts[i].setFrightened(1);
+            } else {
+                ghosts[i].setFrightened(0);
+            }
         }
     }
 
@@ -185,8 +190,8 @@ void GameClient::handleGameState(sf::Packet& packet) {
 
     std::vector<Dot>& dots = game.getDots();
     for (int i = 0; i < dotCount; i++) {
-        std::int32_t x, y, collected;
-        packet >> x >> y >> collected;
+        std::int32_t x, y, collected, pellet;
+        packet >> x >> y >> collected >> pellet;
 
         if (i < (int)dots.size()) {
             dots[i].setCollected(collected == 1);

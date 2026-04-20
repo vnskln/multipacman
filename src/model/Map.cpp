@@ -19,6 +19,7 @@ void Map::parseLines(const std::vector<std::string>& lines) {
     grid.reset(width, height, CellType::Empty);
     playerSpawns.clear();
     ghostSpawns.clear();
+    pelletSpawns.clear();
     loadLayout(lines);
     layoutLines = lines;
 }
@@ -68,6 +69,8 @@ void Map::loadLayout(const std::vector<std::string>& layout) {
                 playerSpawns.push_back({x, y});
             } else if (c == 'G') {
                 ghostSpawns.push_back({x, y});
+            } else if (c == 'O') {
+                pelletSpawns.push_back({x, y});
             }
         }
     }
@@ -95,6 +98,10 @@ const std::vector<SpawnPoint>& Map::getGhostSpawns() const {
 
 int Map::getMaxPlayers() const {
     return (int)playerSpawns.size();
+}
+
+const std::vector<SpawnPoint>& Map::getPelletSpawns() const {
+    return pelletSpawns;
 }
 
 const std::string& Map::getMapName() const {

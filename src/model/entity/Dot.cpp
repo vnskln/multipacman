@@ -1,10 +1,15 @@
 #include "Dot.h"
 
-Dot::Dot(int x, int y, int value) : Entity(x, y), collected(false), value(value) {
+Dot::Dot(int x, int y, int value, bool powerPellet)
+    : Entity(x, y), collected(false), value(value), powerPellet(powerPellet) {
 }
 
 char Dot::getSymbol() const {
-    return '.';
+    return powerPellet ? 'O' : '.';
+}
+
+bool Dot::isPowerPellet() const {
+    return powerPellet;
 }
 
 bool Dot::isCollected() const {

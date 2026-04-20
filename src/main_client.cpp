@@ -29,13 +29,16 @@ int runConsole() {
     std::cout << "In lobby. Waiting for players..." << std::endl;
 
     int lastPlayerCount = 0;
+    std::string lastMapName;
 
     while (client.isConnected() && client.isInLobby()) {
         client.receiveMessages();
 
         const std::vector<LobbyPlayer>& players = client.getLobbyPlayers();
-        if ((int)players.size() != lastPlayerCount) {
+        if ((int)players.size() != lastPlayerCount || client.getLobbyMapName() != lastMapName) {
             lastPlayerCount = (int)players.size();
+            lastMapName = client.getLobbyMapName();
+            std::cout << "Map: " << lastMapName << std::endl;
             std::cout << "Players in lobby:" << std::endl;
             for (int i = 0; i < (int)players.size(); i++) {
                 std::cout << "  " << players[i].name;
@@ -44,15 +47,15 @@ int runConsole() {
             }
 
             if (client.isHost()) {
-                std::cout << "Press S to start the game" << std::endl;
+                std::cout << "S=start  B=add bot  M=change map" << std::endl;
             }
         }
 
         if (client.isHost() && _kbhit()) {
             int key = _getch();
-            if (key == 's' || key == 'S') {
-                client.sendStartGame();
-            }
+            if (key == 's' || key == 'S') client.sendStartGame();
+            if (key == 'b' || key == 'B') client.sendAddBot();
+            if (key == 'm' || key == 'M') client.sendChangeMap();
         }
     }
 
@@ -242,12 +245,10 @@ int runGui() {
     return 0;
 }
 
-int main(int argc, char* argv[]) {
-    bool useGui = true;
-    for (int i = 1; i < argc; i++) {
-        if (std::string(argv[i]) == "--console") useGui = false;
-    }
-
-    if (useGui) return runGui();
+int main() {
+#ifdef CONSOLE_MODE
     return runConsole();
+#else
+    return runGui();
+#endif
 }

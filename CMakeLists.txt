@@ -17,7 +17,7 @@ set_target_properties(freetype PROPERTIES
 include_directories(src src/model src/model/entity src/model/strategy src/network src/rendering src/ui)
 
 set(GAME_SOURCES
-    src/model/map.cpp
+    src/model/Map.cpp
     src/model/entity/Entity.cpp
     src/model/entity/Player.cpp
     src/model/entity/Ghost.cpp
@@ -51,5 +51,19 @@ add_executable(multipacman_client
 )
 target_link_libraries(multipacman_client PRIVATE SFML::Graphics SFML::Network SFML::System ws2_32)
 target_link_options(multipacman_client PRIVATE -mwindows)
+
+add_executable(multipacman_console
+    src/main_client.cpp
+    src/network/GameClient.cpp
+    src/rendering/SfmlRenderer.cpp
+    src/ui/MainMenuScreen.cpp
+    src/ui/ConnectScreen.cpp
+    src/ui/LobbyScreen.cpp
+    src/ui/GameScreen.cpp
+    ${GAME_SOURCES}
+    src/rendering/ConsoleRenderer.cpp
+)
+target_link_libraries(multipacman_console PRIVATE SFML::Graphics SFML::Network SFML::System ws2_32)
+target_compile_definitions(multipacman_console PRIVATE CONSOLE_MODE)
 
 file(COPY ${CMAKE_SOURCE_DIR}/maps DESTINATION ${CMAKE_BINARY_DIR})

@@ -20,6 +20,7 @@ private:
     Grid<CellType> grid;
     std::vector<SpawnPoint> playerSpawns;
     std::vector<SpawnPoint> ghostSpawns;
+    std::vector<SpawnPoint> pelletSpawns;
     std::string mapName;
     std::vector<std::string> layoutLines;
 
@@ -41,6 +42,7 @@ public:
     const std::vector<SpawnPoint>& getGhostSpawns() const;
     /// Maksymalna liczba graczy na tej mapie (= liczba spawnow P).
     int getMaxPlayers() const;
+    const std::vector<SpawnPoint>& getPelletSpawns() const;
     const std::string& getMapName() const;
     const std::vector<std::string>& getLayoutLines() const;
 };
