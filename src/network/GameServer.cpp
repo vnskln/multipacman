@@ -6,7 +6,8 @@
 namespace fs = std::filesystem;
 
 GameServer::GameServer(unsigned short port)
-    : inGame(false), nextPlayerId(0), selectedMapIndex(0) {
+    : inGame(false), nextPlayerId(0), selectedMapIndex(0),
+      currentDifficulty(DIFFICULTY_NORMAL) {
 
     scanMaps();
     currentMapName = availableMaps[0];
@@ -38,6 +39,8 @@ void GameServer::scanMaps() {
 
 void GameServer::run() {
     while (true) {
+        cleanupDisconnectedClients();
+
         if (!inGame) {
             if (selector.wait(sf::milliseconds(100))) {
                 if (selector.isReady(listener)) {
@@ -54,6 +57,9 @@ void GameServer::run() {
 
         if (inGame) {
             if (selector.wait(sf::milliseconds(10))) {
+                if (selector.isReady(listener)) {
+                    acceptNewClient();
+                }
                 for (int i = 0; i < (int)clients.size(); i++) {
                     if (clients[i]->isConnected() && selector.isReady(clients[i]->getSocket())) {
                         handleGameMessage(*clients[i]);
@@ -91,16 +97,44 @@ void GameServer::run() {
 int GameServer::countLobbyPlayers() const {
     int count = 0;
     for (int i = 0; i < (int)clients.size(); i++) {
-        if (clients[i]->getPlayerId() >= 0) count++;
+        if (clients[i]->isConnected() && clients[i]->getPlayerId() >= 0) count++;
     }
     count += (int)pendingBots.size();
     return count;
+}
+
+void GameServer::cleanupDisconnectedClients() {
+    for (int i = (int)clients.size() - 1; i >= 0; i--) {
+        if (clients[i]->getPlayerId() >= 0 && !clients[i]->isConnected()) {
+            clients.erase(clients.begin() + i);
+        }
+    }
+}
+
+bool GameServer::isHostClient(const ClientConnection& client) const {
+    if (!client.isConnected()) return false;
+    int clientId = client.getPlayerId();
+    if (clientId < 0) return false;
+    for (int i = 0; i < (int)clients.size(); i++) {
+        if (!clients[i]->isConnected()) continue;
+        int otherId = clients[i]->getPlayerId();
+        if (otherId >= 0 && otherId < clientId) return false;
+    }
+    return true;
 }
 
 void GameServer::acceptNewClient() {
     auto connection = std::make_unique<ClientConnection>();
 
     if (listener.accept(connection->getSocket()) != sf::Socket::Status::Done) {
+        return;
+    }
+
+    if (inGame) {
+        sf::Packet reject;
+        reject << MSG_JOIN_REJECTED << std::string("Game in progress");
+        (void)connection->getSocket().send(reject);
+        connection->getSocket().disconnect();
         return;
     }
 
@@ -153,7 +187,7 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
     }
 
     if (msgType == MSG_ADD_BOT) {
-        if (client.getPlayerId() == 0) {
+        if (isHostClient(client)) {
             if (countLobbyPlayers() >= MAX_PLAYERS) return;
 
             int botId = nextPlayerId;
@@ -169,7 +203,7 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
     }
 
     if (msgType == MSG_CHANGE_MAP) {
-        if (client.getPlayerId() == 0 && (int)availableMaps.size() > 1) {
+        if (isHostClient(client) && (int)availableMaps.size() > 1) {
             selectedMapIndex = (selectedMapIndex + 1) % (int)availableMaps.size();
             currentMapName = availableMaps[selectedMapIndex];
             std::cout << "Map changed to: " << currentMapName << std::endl;
@@ -177,13 +211,26 @@ void GameServer::handleLobbyMessage(ClientConnection& client) {
         }
     }
 
+    if (msgType == MSG_CHANGE_DIFFICULTY) {
+        if (isHostClient(client)) {
+            currentDifficulty = (currentDifficulty + 1) % 3;
+            std::cout << "Difficulty changed to: " << currentDifficulty << std::endl;
+            broadcastLobbyUpdate();
+        }
+    }
+
     if (msgType == MSG_START_GAME) {
-        if (client.getPlayerId() == 0 && countLobbyPlayers() > 0) {
+        if (isHostClient(client) && countLobbyPlayers() > 0) {
             std::string mapPath = "maps/" + currentMapName + ".map";
             game = Game(mapPath);
 
+            int divisor = 2;
+            if (currentDifficulty == DIFFICULTY_EASY) divisor = 3;
+            if (currentDifficulty == DIFFICULTY_HARD) divisor = 1;
+            game.setGhostTickDivisor(divisor);
+
             for (int i = 0; i < (int)clients.size(); i++) {
-                if (clients[i]->getPlayerId() >= 0) {
+                if (clients[i]->isConnected() && clients[i]->getPlayerId() >= 0) {
                     game.addPlayer(clients[i]->getPlayerId(), clients[i]->getName());
                 }
             }
@@ -260,12 +307,13 @@ void GameServer::broadcastLobbyUpdate() {
     sf::Packet packet;
     packet << MSG_LOBBY_UPDATE;
     packet << currentMapName;
+    packet << currentDifficulty;
 
     std::int32_t count = (std::int32_t)countLobbyPlayers();
     packet << count;
 
     for (int i = 0; i < (int)clients.size(); i++) {
-        if (clients[i]->getPlayerId() >= 0) {
+        if (clients[i]->isConnected() && clients[i]->getPlayerId() >= 0) {
             packet << (std::int32_t)clients[i]->getPlayerId()
                    << clients[i]->getName();
         }
@@ -322,6 +370,7 @@ void GameServer::broadcastGameOver() {
 
     sf::Packet packet;
     packet << MSG_GAME_OVER;
+    packet << (std::int32_t)(game.isWon() ? 1 : 0);
     packet << (std::int32_t)players.size();
     for (int i = 0; i < (int)players.size(); i++) {
         packet << (std::int32_t)players[i].getPlayerId()

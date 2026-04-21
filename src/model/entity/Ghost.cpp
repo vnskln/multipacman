@@ -10,7 +10,9 @@ Ghost::Ghost(int x, int y, int id, GhostStrategy* strategy)
 
 char Ghost::getSymbol() const {
     if (respawnTimer > 0) return ' ';
-    return frightened ? 'F' : ('1' + id);
+    if (frightened) return 'F';
+    if (id < 0 || id > 3) return '?';
+    return '1' + id;
 }
 
 int Ghost::getId() const {

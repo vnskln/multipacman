@@ -25,6 +25,8 @@ private:
     bool gameOver;
     bool playerWon;
     int tickCount;
+    int ghostTickDivisor;
+    int stuckTicks;
 
     void createGhosts();
     void spawnDots();
@@ -41,8 +43,16 @@ public:
     Game(const std::string& mapFile);
     /// Tworzy gre z linii layoutu otrzymanych przez siec (klient).
     Game(const std::vector<std::string>& mapLines, const std::string& mapName);
+    /// @param playerId unikalny identyfikator gracza (z serwera)
+    /// @param name nazwa wyswietlana w lobby i rankingu
     void addPlayer(int playerId, const std::string& name);
+    /// @param playerId unikalny identyfikator bota (z serwera)
+    /// @param name nazwa wyswietlana (np. "Bot 1")
     void addBot(int playerId, const std::string& name);
+    /// Dodaje ducha o podanym id i pozycji (klient, dane z serwera).
+    void addGhost(int id, int x, int y);
+    /// Dodaje kropke o podanej pozycji (klient, dane z serwera).
+    void addDot(int x, int y, bool powerPellet);
     void removePlayer(int playerId);
     /// Rozpoczyna gre - tworzy kropki na mapie.
     void start();
@@ -60,6 +70,8 @@ public:
     std::vector<Ghost>& getGhosts();
     std::vector<Dot>& getDots();
     void setOver(bool over, bool won);
+    /// Ustawia co ile tickow rusza sie duch (1=szybko, 2=normalnie, 3=wolno).
+    void setGhostTickDivisor(int n);
 
     bool isOver() const;
     bool isWon() const;

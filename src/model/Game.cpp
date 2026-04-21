@@ -6,10 +6,10 @@
 #include <cstdlib>
 #include <iostream>
 
-Game::Game() : gameOver(false), playerWon(false), tickCount(0) {
+Game::Game() : gameOver(false), playerWon(false), tickCount(0), ghostTickDivisor(2), stuckTicks(0) {
 }
 
-Game::Game(const std::string& mapFile) : gameOver(false), playerWon(false), tickCount(0) {
+Game::Game(const std::string& mapFile) : gameOver(false), playerWon(false), tickCount(0), ghostTickDivisor(2), stuckTicks(0) {
     if (!map.loadFromFile(mapFile)) {
         std::cerr << "Failed to load map: " << mapFile << std::endl;
     }
@@ -17,9 +17,8 @@ Game::Game(const std::string& mapFile) : gameOver(false), playerWon(false), tick
 }
 
 Game::Game(const std::vector<std::string>& mapLines, const std::string& mapName)
-    : gameOver(false), playerWon(false), tickCount(0) {
+    : gameOver(false), playerWon(false), tickCount(0), ghostTickDivisor(2), stuckTicks(0) {
     map.loadFromLines(mapLines, mapName);
-    createGhosts();
 }
 
 void Game::createGhosts() {
@@ -36,6 +35,7 @@ void Game::createGhosts() {
 }
 
 void Game::addPlayer(int playerId, const std::string& name) {
+    if ((int)players.size() >= 4) return;
     const std::vector<SpawnPoint>& spawns = map.getPlayerSpawns();
     int idx = (int)players.size();
     int startX = 1, startY = 1;
@@ -47,6 +47,7 @@ void Game::addPlayer(int playerId, const std::string& name) {
 }
 
 void Game::addBot(int playerId, const std::string& name) {
+    if ((int)players.size() >= 4) return;
     const std::vector<SpawnPoint>& spawns = map.getPlayerSpawns();
     int idx = (int)players.size();
     int startX = 1, startY = 1;
@@ -55,6 +56,15 @@ void Game::addBot(int playerId, const std::string& name) {
         startY = spawns[idx].y;
     }
     players.push_back(Player(startX, startY, playerId, name, true));
+}
+
+void Game::addGhost(int id, int x, int y) {
+    ghosts.push_back(Ghost(x, y, id, nullptr));
+}
+
+void Game::addDot(int x, int y, bool powerPellet) {
+    int value = powerPellet ? 50 : 10;
+    dots.push_back(Dot(x, y, value, powerPellet));
 }
 
 void Game::removePlayer(int playerId) {
@@ -124,11 +134,12 @@ void Game::update() {
     if (gameOver) return;
 
     tickCount++;
+    stuckTicks++;
 
     movePlayers();
     collectDots();
 
-    if (tickCount % 2 == 0) {
+    if (tickCount % ghostTickDivisor == 0) {
         moveBots();
         moveGhosts();
     }
@@ -185,6 +196,7 @@ void Game::collectDots() {
                 dots[i].getX() == players[p].getX() &&
                 dots[i].getY() == players[p].getY()) {
                 dots[i].collect();
+                stuckTicks = 0;
                 players[p].addScore(dots[i].getValue());
 
                 if (dots[i].isPowerPellet()) {
@@ -254,11 +266,16 @@ void Game::checkWin() {
         return;
     }
 
-    int aliveCount = 0;
+    int aliveAny = 0;
     for (int p = 0; p < (int)players.size(); p++) {
-        if (players[p].isAlive()) aliveCount++;
+        if (players[p].isAlive()) aliveAny++;
     }
-    if (aliveCount == 0) {
+    if (aliveAny == 0) {
+        gameOver = true;
+        return;
+    }
+
+    if (stuckTicks > 300) {
         gameOver = true;
     }
 }
@@ -294,6 +311,11 @@ std::vector<Dot>& Game::getDots() {
 void Game::setOver(bool over, bool won) {
     gameOver = over;
     playerWon = won;
+}
+
+void Game::setGhostTickDivisor(int n) {
+    if (n < 1) n = 1;
+    ghostTickDivisor = n;
 }
 
 bool Game::isOver() const {

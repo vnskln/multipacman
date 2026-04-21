@@ -31,6 +31,7 @@ private:
     std::vector<LobbyPlayer> lobbyPlayers;
 
     std::string lobbyMapName;
+    std::int32_t lobbyDifficulty;
 
     void handleJoinAccepted(sf::Packet& packet);
     void handleJoinRejected(sf::Packet& packet);
@@ -51,6 +52,8 @@ public:
     void sendAddBot();
     /// Wysyla zadanie zmiany mapy do serwera (tylko host).
     void sendChangeMap();
+    /// Wysyla zadanie zmiany poziomu trudnosci (tylko host).
+    void sendChangeDifficulty();
     /// Odbiera i przetwarza wiadomosci z serwera. Nalezy wolac co klatke.
     void receiveMessages();
     void disconnect();
@@ -64,6 +67,7 @@ public:
     bool isHost() const;
     const std::vector<LobbyPlayer>& getLobbyPlayers() const;
     const std::string& getLobbyMapName() const;
+    std::int32_t getLobbyDifficulty() const;
 };
 
 #endif

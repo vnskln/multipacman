@@ -13,20 +13,27 @@ class Grid {
 private:
     int width;
     int height;
+    T defaultValue;
     std::vector<T> cells;
 
 public:
+    /// @param width szerokosc siatki
+    /// @param height wysokosc siatki
+    /// @param defaultValue wartosc poczatkowa komorek (zwracana tez przy get poza zakresem)
     Grid(int width, int height, T defaultValue) {
         this->width = width;
         this->height = height;
+        this->defaultValue = defaultValue;
         cells.resize(width * height, defaultValue);
     }
-    
+
     T get(int x, int y) const {
+        if (x < 0 || x >= width || y < 0 || y >= height) return defaultValue;
         return cells[y * width + x];
     }
 
     void set(int x, int y, T value) {
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
         cells[y * width + x] = value;
     }
 
@@ -39,11 +46,12 @@ public:
     }
 
     /// Zmienia rozmiar siatki i wypelnia nowa wartoscia domyslna.
-    void reset(int newWidth, int newHeight, T defaultValue) {
+    void reset(int newWidth, int newHeight, T newDefaultValue) {
         width = newWidth;
         height = newHeight;
+        defaultValue = newDefaultValue;
         cells.clear();
-        cells.resize(width * height, defaultValue);
+        cells.resize(width * height, newDefaultValue);
     }
 };
 

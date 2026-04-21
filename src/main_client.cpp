@@ -40,9 +40,13 @@ int runConsole() {
             lastMapName = client.getLobbyMapName();
             std::cout << "Map: " << lastMapName << std::endl;
             std::cout << "Players in lobby:" << std::endl;
+            int hostId = -1;
+            for (int i = 0; i < (int)players.size(); i++) {
+                if (hostId < 0 || players[i].id < hostId) hostId = players[i].id;
+            }
             for (int i = 0; i < (int)players.size(); i++) {
                 std::cout << "  " << players[i].name;
-                if (players[i].id == 0) std::cout << " (host)";
+                if (players[i].id == hostId) std::cout << " (host)";
                 std::cout << std::endl;
             }
 

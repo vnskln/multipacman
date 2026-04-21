@@ -3,7 +3,8 @@
 
 GameClient::GameClient()
     : myPlayerId(-1), connected(false), inLobby(false),
-      gameStarted(false), gameOver(false) {
+      gameStarted(false), gameOver(false),
+      lobbyDifficulty(DIFFICULTY_NORMAL) {
 }
 
 bool GameClient::connect(const std::string& ip, unsigned short port, const std::string& name) {
@@ -13,6 +14,7 @@ bool GameClient::connect(const std::string& ip, unsigned short port, const std::
     gameOver = false;
     lobbyPlayers.clear();
     lobbyMapName.clear();
+    lobbyDifficulty = DIFFICULTY_NORMAL;
     selector.clear();
 
     auto address = sf::IpAddress::resolve(ip);
@@ -58,6 +60,12 @@ void GameClient::sendAddBot() {
 void GameClient::sendChangeMap() {
     sf::Packet packet;
     packet << MSG_CHANGE_MAP;
+    (void)socket.send(packet);
+}
+
+void GameClient::sendChangeDifficulty() {
+    sf::Packet packet;
+    packet << MSG_CHANGE_DIFFICULTY;
     (void)socket.send(packet);
 }
 
@@ -109,6 +117,10 @@ void GameClient::handleLobbyUpdate(sf::Packet& packet) {
     packet >> mapName;
     lobbyMapName = mapName;
 
+    std::int32_t difficulty;
+    packet >> difficulty;
+    lobbyDifficulty = difficulty;
+
     std::int32_t count;
     packet >> count;
 
@@ -142,7 +154,6 @@ void GameClient::handleGameStarted(sf::Packet& packet) {
     for (int i = 0; i < (int)lobbyPlayers.size(); i++) {
         game.addPlayer(lobbyPlayers[i].id, lobbyPlayers[i].name);
     }
-    game.start();
 
     inLobby = false;
     gameStarted = true;
@@ -170,32 +181,29 @@ void GameClient::handleGameState(sf::Packet& packet) {
     std::int32_t ghostCount;
     packet >> ghostCount;
 
-    std::vector<Ghost>& ghosts = game.getGhosts();
     for (int i = 0; i < ghostCount; i++) {
         std::int32_t id, x, y, frightened, respawning;
         packet >> id >> x >> y >> frightened >> respawning;
 
-        if (i < (int)ghosts.size()) {
-            ghosts[i].setPosition(x, y);
-            if (frightened == 1) {
-                ghosts[i].setFrightened(1);
-            } else {
-                ghosts[i].setFrightened(0);
-            }
+        if (i >= (int)game.getGhosts().size()) {
+            game.addGhost(id, x, y);
         }
+        Ghost& g = game.getGhosts()[i];
+        g.setPosition(x, y);
+        g.setFrightened(frightened == 1 ? 1 : 0);
     }
 
     std::int32_t dotCount;
     packet >> dotCount;
 
-    std::vector<Dot>& dots = game.getDots();
     for (int i = 0; i < dotCount; i++) {
         std::int32_t x, y, collected, pellet;
         packet >> x >> y >> collected >> pellet;
 
-        if (i < (int)dots.size()) {
-            dots[i].setCollected(collected == 1);
+        if (i >= (int)game.getDots().size()) {
+            game.addDot(x, y, pellet == 1);
         }
+        game.getDots()[i].setCollected(collected == 1);
     }
 
     std::int32_t over;
@@ -208,10 +216,14 @@ void GameClient::handleGameState(sf::Packet& packet) {
 void GameClient::handleGameOver(sf::Packet& packet) {
     gameOver = true;
 
+    std::int32_t won;
+    packet >> won;
+    game.setOver(true, won == 1);
+
     std::int32_t count;
     packet >> count;
 
-    std::cout << std::endl << "=== RANKING ===" << std::endl;
+    std::cout << std::endl << "=== " << (won == 1 ? "YOU WIN!" : "GAME OVER") << " ===" << std::endl;
     for (int i = 0; i < count; i++) {
         std::int32_t id, score;
         std::string name;
@@ -250,7 +262,11 @@ bool GameClient::isGameOver() const {
 }
 
 bool GameClient::isHost() const {
-    return myPlayerId == 0;
+    if (myPlayerId < 0) return false;
+    for (int i = 0; i < (int)lobbyPlayers.size(); i++) {
+        if (lobbyPlayers[i].id < myPlayerId) return false;
+    }
+    return true;
 }
 
 const std::vector<LobbyPlayer>& GameClient::getLobbyPlayers() const {
@@ -259,4 +275,8 @@ const std::vector<LobbyPlayer>& GameClient::getLobbyPlayers() const {
 
 const std::string& GameClient::getLobbyMapName() const {
     return lobbyMapName;
+}
+
+std::int32_t GameClient::getLobbyDifficulty() const {
+    return lobbyDifficulty;
 }

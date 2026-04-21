@@ -76,10 +76,11 @@ void GameScreen::draw(sf::RenderWindow& window) {
         overlay.setFillColor(sf::Color(0, 0, 0, 150));
         window.draw(overlay);
 
-        sf::Text gameOverText(font, "GAME OVER", 48);
+        bool won = game.isWon();
+        sf::Text gameOverText(font, won ? "YOU WIN!" : "GAME OVER", 48);
         sf::FloatRect goBounds = gameOverText.getGlobalBounds();
         gameOverText.setPosition({CENTER_X - goBounds.size.x / 2.f, 150.f});
-        gameOverText.setFillColor(sf::Color::White);
+        gameOverText.setFillColor(won ? sf::Color::Yellow : sf::Color::White);
         window.draw(gameOverText);
 
         std::vector<const Player*> sorted;

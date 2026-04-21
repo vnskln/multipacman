@@ -27,6 +27,7 @@ private:
     std::vector<std::string> availableMaps;
     int selectedMapIndex;
     std::string currentMapName;
+    std::int32_t currentDifficulty;
 
     sf::Clock gameClock;
 
@@ -35,6 +36,8 @@ private:
     void handleLobbyMessage(ClientConnection& client);
     void handleGameMessage(ClientConnection& client);
     void removeClient(ClientConnection& client);
+    void cleanupDisconnectedClients();
+    bool isHostClient(const ClientConnection& client) const;
     Direction directionFromNetwork(std::int32_t dir);
     int countLobbyPlayers() const;
 
